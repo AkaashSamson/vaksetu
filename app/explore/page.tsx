@@ -9,31 +9,31 @@ const topics = [
     {
         title: "Resources",
         description: "Guides and lessons to help you learn sign language step by step.",
-        imageUrl: "/images/topics/resources.jpg",
+        imageUrl: "resources.png",
         href: "/explore/resources",
     },
     {
         title: "Quiz",
         description: "Test your sign recognition with quick, interactive practice quizzes.",
-        imageUrl: "/images/topics/quiz.jpg",
+        imageUrl: "quiz.png",
         href: "/explore/quiz",
     },
     {
         title: "Leaderboard",
         description: "Track your progress and see top scores from the community.",
-        imageUrl: "/images/topics/leaderboard.jpg",
+        imageUrl: "leaderboard.png",
         href: "/explore/leaderboard",
     },
     {
         title: "Communities",
         description: "Connect with learners and Deaf/HoH communities to practice and share.",
-        imageUrl: "/images/topics/communities.jpg",
+        imageUrl: "communities.png",
         href: "/explore/communities",
     },
     {
         title: "Dictionary",
         description: "Search signs by word to view meanings, examples, and variations.",
-        imageUrl: "/images/topics/dictionary.jpg",
+        imageUrl: "dictionary.png",
         href: "/explore/dictionary",
     },
 ]
