@@ -1,0 +1,7 @@
+# 7. Backend
+
+## 7.1 Authentication
+
+The platform's authentication framework utilizes Supabase Auth to securely govern user registration and login workflows. Supabase provides a highly robust, pre-configured authentication infrastructure that significantly accelerates development by reducing the need to implement complex security protocols from scratch. A primary advantage of this service is its seamless handling of secure session management, token validation, and encrypted credential storage. Additionally, integrating this authentication model helps neatly partition datasets; by associating user IDs with stored records, the system can dynamically enforce data privacy, ensuring that individuals only interact with information tied securely to their authenticated sessions.
+
+By default, Supabase isolates sensitive user credentials within its own strictly protected internal table. To bridge this secure boundary with our application's operational data, the backend employs automated PostgreSQL database triggers. When a new user successfully registers via the authentication service, a custom trigger automatically executes in the background to create a corresponding profile record in our application's custom database tables. This architecture ensures that sensitive login data remains entirely secure within the isolated auth ecosystem, while the application simultaneously maintains synchronized, accessible user records to drive frontend logic and custom datasets smoothly.
