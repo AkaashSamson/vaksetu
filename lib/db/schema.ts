@@ -1,4 +1,4 @@
-import { pgTable, bigserial, text, timestamp, uuid, foreignKey, jsonb, numeric, unique, boolean, primaryKey, pgEnum, pgSchema } from "drizzle-orm/pg-core"
+import { pgTable, bigserial, text, timestamp, uuid, foreignKey, jsonb, numeric, unique, boolean, primaryKey, pgEnum, pgSchema, integer } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const authSchema = pgSchema('auth');
@@ -49,17 +49,12 @@ export const quizAttempt = pgTable("quiz_attempt", {
     id: uuid().defaultRandom().primaryKey().notNull(),
     quizId: uuid("quiz_id"),
     userId: uuid("user_id"),
-    groupId: uuid("group_id"),
     startedAt: timestamp("started_at", { withTimezone: true, mode: 'string' }).defaultNow(),
     completedAt: timestamp("completed_at", { withTimezone: true, mode: 'string' }),
     totalScore: numeric("total_score"),
+    attemptNumber: integer("attempt_number").default(1),
     response: jsonb(),
 }, (table) => [
-    foreignKey({
-        columns: [table.groupId],
-        foreignColumns: [userGroup.id],
-        name: "quiz_attempt_group_id_fkey"
-    }),
     foreignKey({
         columns: [table.quizId],
         foreignColumns: [quiz.id],
@@ -122,5 +117,24 @@ export const groupMember = pgTable("group_member", {
         name: "group_member_group_id_fkey"
     }).onDelete("cascade"),
     primaryKey({ columns: [table.groupId, table.userId], name: "group_member_pkey" }),
+]);
+
+export const quizGroup = pgTable("quiz_group", {
+    quizId: uuid("quiz_id").notNull(),
+    groupId: uuid("group_id").notNull(),
+    dateAdded: timestamp("date_added", { withTimezone: true, mode: 'string' }).defaultNow(),
+    activeThisWeek: boolean("active_this_week").default(true),
+}, (table) => [
+    foreignKey({
+        columns: [table.quizId],
+        foreignColumns: [quiz.id],
+        name: "quiz_group_quiz_id_fkey"
+    }).onDelete("cascade"),
+    foreignKey({
+        columns: [table.groupId],
+        foreignColumns: [userGroup.id],
+        name: "quiz_group_group_id_fkey"
+    }).onDelete("cascade"),
+    primaryKey({ columns: [table.quizId, table.groupId], name: "quiz_group_pkey" }),
 ]);
 

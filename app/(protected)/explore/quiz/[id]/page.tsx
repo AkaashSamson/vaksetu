@@ -160,6 +160,7 @@ export default function QuizPage() {
     const [questionIndex, setQuestionIndex] = React.useState(0)
     const [answers, setAnswers] = React.useState<AnswerMap>({})
     const [showResults, setShowResults] = React.useState(false)
+    const [isSubmitting, setIsSubmitting] = React.useState(false)
 
     // Fetch Quiz Data on Mount
     React.useEffect(() => {
@@ -192,6 +193,32 @@ export default function QuizPage() {
         if (!quiz) return { correct: 0, wrong: 0, unanswered: 0, total: 0 }
         return computeResults(quiz, answers)
     }, [quiz, answers])
+
+    React.useEffect(() => {
+        if (showResults && quiz) {
+            const submitScore = async () => {
+                setIsSubmitting(true);
+                try {
+                    await fetch(`/api/quiz/${quiz.id}/attempt`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            correct: results.correct,
+                            wrong: results.wrong,
+                            unanswered: results.unanswered,
+                            total: results.total,
+                            answers
+                        })
+                    });
+                } catch (e) {
+                    console.error("Failed to submit score", e);
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+            submitScore();
+        }
+    }, [showResults, quiz, results, answers]);
 
     if (isLoading) {
         return <div className="p-8 text-center text-muted-foreground">Loading quiz...</div>
