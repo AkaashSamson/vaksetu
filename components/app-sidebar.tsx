@@ -53,7 +53,7 @@ const data = {
         },
         {
           title: "Community",
-          url: "#",
+          url: "/explore/communities",
         },
         {
           title: "Dictionary",
