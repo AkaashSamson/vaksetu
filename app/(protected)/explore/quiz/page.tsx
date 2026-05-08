@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { PageHeader } from "@/components/shared/PageHeader"
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD"
 
@@ -97,7 +98,7 @@ export default function QuizPage() {
         async function fetchList() {
             try {
                 setIsLoadingList(true)
-                const res = await fetch(`/api/quiz`)
+                const res = await fetch(`/api/quizzes`)
                 if (!res.ok) throw new Error("Failed to fetch quizzes")
                 const data: BaseQuiz[] = await res.json()
                 
@@ -123,7 +124,7 @@ export default function QuizPage() {
             try {
                 setIsLoading(true)
                 setError(null)
-                const res = await fetch(`/api/quiz/${selectedQuizId}`)
+                const res = await fetch(`/api/quizzes/${selectedQuizId}`)
                 if (!res.ok) throw new Error("Failed to fetch quiz details")
                 const data: Quiz = await res.json()
                 setQuiz(data)
@@ -157,21 +158,18 @@ export default function QuizPage() {
 
     // Common Header functionality
     const header = (
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b">
-            <div className="flex items-center gap-2 px-4 w-full">
-                <SidebarTrigger className="-ml-1" />
-                <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-                <Compass className="size-4 text-muted-foreground shrink-0" />
-                <h1 className="text-lg font-semibold leading-none mr-auto">Quizzes</h1>
-                
-                {selectedQuizId && (
-                    <Button variant="outline" size="sm" onClick={() => setSelectedQuizId(null)} className="ml-auto">
+        <PageHeader 
+            title="Quizzes" 
+            icon={Compass} 
+            rightContent={
+                selectedQuizId && (
+                    <Button variant="outline" size="sm" onClick={() => setSelectedQuizId(null)}>
                         <ChevronLeft className="mr-1 size-4" />
                         Exit Quiz
                     </Button>
-                )}
-            </div>
-        </header>
+                )
+            }
+        />
     )
 
     // Render logic based on List vs Player
@@ -274,9 +272,28 @@ export default function QuizPage() {
         setAnswers((prev) => ({ ...prev, [qNo]: optionId }))
     }
 
-    function nextQuestion() {
+    async function submitQuizAttempt() {
+        if (!quiz) return;
+        const res = computeResults(quiz, answers);
+        try {
+            await fetch('/api/quizzes/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    quizId: quiz.id,
+                    totalScore: res.correct,
+                    response: answers
+                })
+            });
+        } catch(e) { console.error("Failed to submit quiz", e); }
+    }
+
+    async function nextQuestion() {
         if (quiz && questionIndex < quiz.questions.length - 1) setQuestionIndex((i) => i + 1)
-        else setShowResults(true)
+        else {
+            await submitQuizAttempt();
+            setShowResults(true)
+        }
     }
 
     function prevQuestion() {
@@ -506,7 +523,7 @@ export default function QuizPage() {
                                     Reset
                                 </Button>
 
-                                <Button onClick={nextQuestion} className="bg-green-600 hover:bg-green-700">
+                                <Button onClick={nextQuestion} className="bg-green-900 hover:bg-green-800 text-white shadow-sm font-medium">
                                     {isLastQuestion ? "Finish" : "Next"}
                                 </Button>
                             </div>

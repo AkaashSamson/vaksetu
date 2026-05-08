@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getUserGroupsLeaderboardPreviews } from '@/lib/db/queries/leaderboard';
+import { isMockMode } from '@/lib/env';
+import { mockLeaderboardPreviews } from '@/lib/mock/data';
 
 export async function GET(request: Request) {
     try {
+        if (isMockMode) {
+            return NextResponse.json(mockLeaderboardPreviews);
+        }
+
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 

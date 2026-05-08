@@ -1,23 +1,21 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Users } from "lucide-react";
+import { Users, Loader2 } from "lucide-react";
 import { Modal } from "@/components/communities/Modal";
-import {
-    createGroup,
-    joinWithCode,
-    seedGroups,
-    type CommunityGroup,
-} from "@/lib/communities/service";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Button } from "@/components/ui/button";
 import { quizCatalog } from "@/lib/quizzes/catalog";
 import { useRouter } from "next/navigation";
+import { PopulatedCommunityGroup } from "@/lib/db/queries/communities";
 
+// Temporarily hardcoded for mock mode UI display logic
 const CURRENT_USER_ID = "me";
 
-function isMember(group: CommunityGroup) {
-    return group.members.includes(CURRENT_USER_ID);
+function isMember(group: PopulatedCommunityGroup) {
+    return group.memberIds.includes(CURRENT_USER_ID);
 }
 
 function generateCode() {
@@ -27,7 +25,25 @@ function generateCode() {
 export default function CommunitiesPage() {
     const router = useRouter();
 
-    const [groups, setGroups] = useState<CommunityGroup[]>(seedGroups);
+    const [groups, setGroups] = useState<PopulatedCommunityGroup[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchGroups() {
+            try {
+                const res = await fetch('/api/communities');
+                if (res.ok) {
+                    const data = await res.json();
+                    setGroups(data);
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchGroups();
+    }, []);
 
     const yourGroups = useMemo(() => groups.filter(isMember), [groups]);
     const otherGroups = useMemo(() => groups.filter((g) => !isMember(g)), [groups]);
@@ -51,13 +67,20 @@ export default function CommunitiesPage() {
         setJoinLoading(true);
 
         try {
-            const res = await joinWithCode({ code: joinCode, groups });
-            if (!res.ok) {
-                setJoinError("Invalid Code");
+            const res = await fetch('/api/communities/join', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: joinCode }),
+            });
+            
+            const data = await res.json();
+            
+            if (!res.ok || !data.ok) {
+                setJoinError(data.error || "Invalid Code");
                 return;
             }
 
-            router.push(`/explore/communities/${res.groupId}`);
+            router.push(`/explore/communities/${data.groupId}`);
             setJoinOpen(false);
             setJoinCode("");
         } finally {
@@ -70,25 +93,29 @@ export default function CommunitiesPage() {
 
         setCreateLoading(true);
         try {
-            const res = await createGroup({
-                name: groupName,
-                description: groupDesc,
-                code: groupCode,
-                ownerId: CURRENT_USER_ID,
-                quizIds: selectedQuizIds,
+            const res = await fetch('/api/communities', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: groupName,
+                    description: groupDesc,
+                    code: groupCode,
+                    quizIds: selectedQuizIds,
+                }),
             });
 
-            // Add created group locally
-            setGroups((prev) => [res.group, ...prev]);
+            if (res.ok) {
+                const newGroup = await res.json();
+                setGroups((prev) => [newGroup, ...prev]);
 
-            // Close modal + reset
-            setCreateOpen(false);
-            setGroupName("");
-            setGroupDesc("");
-            setGroupCode(generateCode());
-            setSelectedQuizIds([]);
+                setCreateOpen(false);
+                setGroupName("");
+                setGroupDesc("");
+                setGroupCode(generateCode());
+                setSelectedQuizIds([]);
 
-            router.push(`/explore/communities/${res.group.id}`);
+                router.push(`/explore/communities/${newGroup.id}`);
+            }
         } finally {
             setCreateLoading(false);
         }
@@ -96,19 +123,7 @@ export default function CommunitiesPage() {
 
     return (
         <>
-            <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-                <div className="flex w-full items-center justify-between gap-2 px-4">
-                    <div className="flex items-center gap-2">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator
-                            orientation="vertical"
-                            className="mr-2 data-[orientation=vertical]:h-4"
-                        />
-                        <Users className="size-4 text-muted-foreground" />
-                        <h1 className="text-lg font-semibold leading-none">Communities</h1>
-                    </div>
-                </div>
-            </header>
+            <PageHeader title="Communities" icon={Users} />
 
             {/* flex column -> buttons can sit at bottom using mt-auto */}
             <div className="flex flex-1 flex-col p-4 pt-0">
@@ -138,7 +153,7 @@ export default function CommunitiesPage() {
                                             <div className="space-y-1">
                                                 <div className="text-base font-semibold">{g.name}</div>
                                                 <div className="text-xs text-muted-foreground">
-                                                    Code: {g.code}
+                                                    Code: {g.inviteCode}
                                                 </div>
                                             </div>
                                             <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
@@ -175,14 +190,14 @@ export default function CommunitiesPage() {
                                             <div className="space-y-1">
                                                 <div className="text-base font-semibold">{g.name}</div>
                                                 <div className="text-xs text-muted-foreground">
-                                                    Code: {g.code}
+                                                    Code: {g.inviteCode}
                                                 </div>
                                             </div>
                                             <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
                                                 {g.description}
                                             </p>
                                             <div className="mt-3 text-xs text-muted-foreground">
-                                                Members: {g.members.length} • Quizzes: {g.quizIds.length}
+                                                Members: {g.memberIds?.length || 0} • Quizzes: {g.quizIds?.length || 0}
                                             </div>
                                         </button>
                                     ))}
@@ -205,17 +220,16 @@ export default function CommunitiesPage() {
                             Join with Code
                         </button>
 
-                        <button
-                            type="button"
+                        <Button
+                            className="w-full sm:w-auto rounded-xl bg-green-900 px-4 py-2 text-sm font-medium text-white hover:bg-green-800 transition-colors shadow-sm"
                             onClick={() => {
                                 setGroupCode(generateCode());
                                 setSelectedQuizIds([]);
                                 setCreateOpen(true);
                             }}
-                            className="w-full sm:w-auto rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
                         >
                             Create Group
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>
