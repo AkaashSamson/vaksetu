@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getGroupLeaderboard } from '@/lib/db/queries/leaderboard';
+import { getAllQuizzes } from '@/lib/db/queries/quizzes';
 import { isMockMode } from '@/lib/env';
-import { getMockGroupLeaderboard } from '@/lib/mock/data';
+import { mockQuizzes } from '@/lib/mock/data';
 
 export async function GET(
     request: Request,
@@ -12,7 +12,8 @@ export async function GET(
         const { id } = await params;
 
         if (isMockMode) {
-            return NextResponse.json(getMockGroupLeaderboard(id));
+            const quiz = mockQuizzes.find(q => q.id === id);
+            return quiz ? NextResponse.json(quiz) : NextResponse.json({ error: "Not found" }, { status: 404 });
         }
 
         const supabase = await createClient();
@@ -22,15 +23,17 @@ export async function GET(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { searchParams } = new URL(request.url);
-        const timeframeParam = searchParams.get('timeframe');
-        const timeframe = timeframeParam === 'weekly' ? 'weekly' : 'all-time';
-
-        const leaderboard = await getGroupLeaderboard(id, timeframe);
+        // Just fetch all and find it (for simplicity, or write a getQuizById query)
+        const quizzes = await getAllQuizzes();
+        const quiz = quizzes.find(q => q.id === id);
         
-        return NextResponse.json(leaderboard);
+        if (!quiz) {
+            return NextResponse.json({ error: "Not found" }, { status: 404 });
+        }
+        
+        return NextResponse.json(quiz);
     } catch (e) {
-        console.error("Error fetching group leaderboard:", e);
+        console.error("Error fetching quiz:", e);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
