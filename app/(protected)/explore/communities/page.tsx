@@ -2,8 +2,9 @@
 
 import React, { useMemo, useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Users, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Modal } from "@/components/communities/Modal";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -11,11 +12,9 @@ import { quizCatalog } from "@/lib/quizzes/catalog";
 import { useRouter } from "next/navigation";
 import { PopulatedCommunityGroup } from "@/lib/db/queries/communities";
 
-// Temporarily hardcoded for mock mode UI display logic
-const CURRENT_USER_ID = "me";
-
-function isMember(group: PopulatedCommunityGroup) {
-    return group.memberIds.includes(CURRENT_USER_ID);
+function isMember(group: PopulatedCommunityGroup, currentUserId: string | null) {
+    if (!currentUserId) return false;
+    return group.memberIds.includes(currentUserId);
 }
 
 function generateCode() {
@@ -26,6 +25,7 @@ export default function CommunitiesPage() {
     const router = useRouter();
 
     const [groups, setGroups] = useState<PopulatedCommunityGroup[]>([]);
+    const [currentUser, setCurrentUser] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -34,7 +34,8 @@ export default function CommunitiesPage() {
                 const res = await fetch('/api/communities');
                 if (res.ok) {
                     const data = await res.json();
-                    setGroups(data);
+                    setCurrentUser(data.currentUser);
+                    setGroups(data.groups);
                 }
             } catch (e) {
                 console.error(e);
@@ -45,8 +46,8 @@ export default function CommunitiesPage() {
         fetchGroups();
     }, []);
 
-    const yourGroups = useMemo(() => groups.filter(isMember), [groups]);
-    const otherGroups = useMemo(() => groups.filter((g) => !isMember(g)), [groups]);
+    const yourGroups = useMemo(() => groups.filter((g) => isMember(g, currentUser)), [groups, currentUser]);
+    const otherGroups = useMemo(() => groups.filter((g) => !isMember(g, currentUser) && g.isPublic), [groups, currentUser]);
 
     // Join with code modal
     const [joinOpen, setJoinOpen] = useState(false);
@@ -60,6 +61,7 @@ export default function CommunitiesPage() {
     const [groupDesc, setGroupDesc] = useState("");
     const [groupCode, setGroupCode] = useState(generateCode());
     const [selectedQuizIds, setSelectedQuizIds] = useState<string[]>([]);
+    const [isPublic, setIsPublic] = useState(true);
     const [createLoading, setCreateLoading] = useState(false);
 
     async function handleJoinSubmit() {
@@ -101,6 +103,7 @@ export default function CommunitiesPage() {
                     description: groupDesc,
                     code: groupCode,
                     quizIds: selectedQuizIds,
+                    isPublic: isPublic,
                 }),
             });
 
@@ -113,6 +116,7 @@ export default function CommunitiesPage() {
                 setGroupDesc("");
                 setGroupCode(generateCode());
                 setSelectedQuizIds([]);
+                setIsPublic(true);
 
                 router.push(`/explore/communities/${newGroup.id}`);
             }
@@ -151,7 +155,13 @@ export default function CommunitiesPage() {
                                             className="text-left rounded-2xl border bg-background p-4 shadow-sm transition hover:shadow-md hover:border-green-500"
                                         >
                                             <div className="space-y-1">
-                                                <div className="text-base font-semibold">{g.name}</div>
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="text-base font-semibold break-all">{g.name}</div>
+                                                    {!g.isPublic && <Badge variant="secondary" className="text-[10px] uppercase font-semibold tracking-wider shrink-0">Private</Badge>}
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">
+                                                    Created by: {g.ownerName || "Unknown"}
+                                                </div>
                                                 <div className="text-xs text-muted-foreground">
                                                     Code: {g.inviteCode}
                                                 </div>
@@ -189,6 +199,9 @@ export default function CommunitiesPage() {
                                         >
                                             <div className="space-y-1">
                                                 <div className="text-base font-semibold">{g.name}</div>
+                                                <div className="text-xs text-muted-foreground">
+                                                    Created by: {g.ownerName || "Unknown"}
+                                                </div>
                                                 <div className="text-xs text-muted-foreground">
                                                     Code: {g.inviteCode}
                                                 </div>
@@ -302,6 +315,14 @@ export default function CommunitiesPage() {
                             Generate
                         </button>
                     </div>
+
+                    <label className="flex items-center gap-3 text-sm rounded-xl border p-3 cursor-pointer hover:bg-muted/50 transition">
+                        <Checkbox 
+                            checked={!isPublic}
+                            onCheckedChange={(checked) => setIsPublic(!checked)}
+                        />
+                        <span className="font-medium">Make this group private (Hidden from others)</span>
+                    </label>
 
                     {/* Quiz selection */}
                     <div className="space-y-2">

@@ -74,6 +74,7 @@ export const userGroup = pgTable("user_group", {
     inviteCode: text("invite_code").notNull(),
     createdBy: uuid("created_by"),
     isDefault: boolean("is_default").default(false),
+    isPublic: boolean("is_public").default(true),
     createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow(),
 }, (table) => [
     foreignKey({
