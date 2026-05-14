@@ -16,6 +16,7 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
     const [loading, setLoading] = React.useState(false)
     const [error, setError] = React.useState<string | null>(null)
 
+    const [username, setUsername] = React.useState("")
     const [email, setEmail] = React.useState("")
     const [password, setPassword] = React.useState("")
     const [confirmPassword, setConfirmPassword] = React.useState("")
@@ -34,6 +35,7 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
         if (!email.trim()) return "Email is required."
         if (!password) return "Password is required."
         if (isSignup) {
+            if (!username.trim()) return "Username is required."
             if (password.length < 6) return "Password must be at least 6 characters."
             if (password !== confirmPassword) return "Passwords do not match."
         }
@@ -53,7 +55,10 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
         setLoading(true)
         try {
             const formData = new FormData()
-            formData.append("email", email)
+            if (isSignup) {
+                formData.append("username", username.trim())
+            }
+            formData.append("email", email.trim())
             formData.append("password", password)
 
             const action = isSignup ? signup : login
@@ -102,6 +107,21 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
                     ) : null}
 
                     <form onSubmit={onSubmit} className="mt-4 grid gap-4">
+                        {isSignup ? (
+                            <div className="grid gap-2">
+                                <Label htmlFor="lb-username">Username</Label>
+                                <Input
+                                    id="lb-username"
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    className="focus-visible:ring-green-950"
+                                    autoComplete="username"
+                                    required
+                                />
+                            </div>
+                        ) : null}
+
                         <div className="grid gap-2">
                             <Label htmlFor="lb-email">Email</Label>
                             <Input

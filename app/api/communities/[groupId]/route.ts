@@ -1,7 +1,8 @@
 // app/api/communities/[groupId]/route.ts
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getUserCommunities, createCommunityGroup } from '@/lib/db/queries/communities';
+import { getCommunityById, createCommunityGroup } from '@/lib/db/queries/communities';
+import { getGroupLeaderboard } from '@/lib/db/queries/leaderboard';
 import { isMockMode } from '@/lib/env';
 import { mockCommunities } from '@/lib/mock/data';
 
@@ -19,7 +20,7 @@ export async function GET(request: Request, { params }: { params: { groupId: str
     if (isMockMode) {
       const mock = mockCommunities.find((g) => g.id === groupId);
       if (!mock) return NextResponse.json({ error: 'Group not found' }, { status: 404 });
-      return NextResponse.json(mock);
+      return NextResponse.json({ currentUser: 'me', group: mock, leaderboard: [] });
     }
 
     // Real mode – fetch from Supabase
@@ -27,14 +28,17 @@ export async function GET(request: Request, { params }: { params: { groupId: str
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Retrieve all groups for the user then pick the matching one.
-    // In a production app you would query by ID directly, but the existing
-    // query helpers only expose `getUserCommunities`. To keep the change
-    // minimal we reuse it and filter.
-    const groups = await getUserCommunities(user.id);
-    const group = groups.find((g) => g.id === groupId);
+    const group = await getCommunityById(groupId);
     if (!group) return NextResponse.json({ error: 'Group not found' }, { status: 404 });
-    return NextResponse.json(group);
+
+    const leaderboard = await getGroupLeaderboard(group.id);
+    const formattedLeaderboard = leaderboard.map(l => ({
+        userId: l.userId,
+        name: l.fullName || 'Unknown User',
+        score: l.totalScore
+    }));
+
+    return NextResponse.json({ currentUser: user.id, group, leaderboard: formattedLeaderboard });
   } catch (e) {
     console.error('Error fetching community group:', e);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

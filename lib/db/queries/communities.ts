@@ -1,6 +1,6 @@
 import { eq, sql, and } from 'drizzle-orm';
 import { db } from '../index';
-import { userGroup, groupMember, quizGroup } from '../schema';
+import { userGroup, groupMember, quizGroup, userProfile, quiz } from '../schema';
 
 export interface PopulatedCommunityGroup {
     id: string;
@@ -8,8 +8,52 @@ export interface PopulatedCommunityGroup {
     description: string | null;
     inviteCode: string;
     ownerId: string | null;
+    ownerName?: string | null;
+    isPublic: boolean | null;
     memberIds: string[];
     quizIds: string[];
+    quizzes?: { id: string; title: string; description: string | null; activeThisWeek: boolean | null }[];
+}
+
+/**
+ * Retrieves all groups across the platform.
+ */
+export async function getAllCommunities(): Promise<PopulatedCommunityGroup[]> {
+    const allGroups = await db
+        .select({
+            id: userGroup.id,
+            name: userGroup.name,
+            description: userGroup.description,
+            inviteCode: userGroup.inviteCode,
+            ownerId: userGroup.createdBy,
+            ownerName: userProfile.fullName,
+            isPublic: userGroup.isPublic,
+        })
+        .from(userGroup)
+        .leftJoin(userProfile, eq(userGroup.createdBy, userProfile.id));
+
+    const populatedGroups: PopulatedCommunityGroup[] = [];
+
+    // For each group, fetch members and linked quizzes
+    for (const group of allGroups) {
+        const members = await db
+            .select({ userId: groupMember.userId })
+            .from(groupMember)
+            .where(eq(groupMember.groupId, group.id));
+            
+        const quizzes = await db
+            .select({ quizId: quizGroup.quizId })
+            .from(quizGroup)
+            .where(eq(quizGroup.groupId, group.id));
+
+        populatedGroups.push({
+            ...group,
+            memberIds: members.map(m => m.userId),
+            quizIds: quizzes.map(q => q.quizId),
+        });
+    }
+
+    return populatedGroups;
 }
 
 /**
@@ -24,9 +68,12 @@ export async function getUserCommunities(userId: string): Promise<PopulatedCommu
             description: userGroup.description,
             inviteCode: userGroup.inviteCode,
             ownerId: userGroup.createdBy,
+            ownerName: userProfile.fullName,
+            isPublic: userGroup.isPublic,
         })
         .from(groupMember)
         .innerJoin(userGroup, eq(groupMember.groupId, userGroup.id))
+        .leftJoin(userProfile, eq(userGroup.createdBy, userProfile.id))
         .where(eq(groupMember.userId, userId));
 
     const populatedGroups: PopulatedCommunityGroup[] = [];
@@ -63,7 +110,8 @@ export async function createCommunityGroup(
     description: string,
     inviteCode: string,
     ownerId: string,
-    quizIds: string[]
+    quizIds: string[],
+    isPublic: boolean = true
 ): Promise<PopulatedCommunityGroup> {
     
     // 1. Insert the group
@@ -72,6 +120,7 @@ export async function createCommunityGroup(
         description,
         inviteCode,
         createdBy: ownerId,
+        isPublic,
     }).returning();
 
     // 2. Add owner as member
@@ -90,12 +139,20 @@ export async function createCommunityGroup(
         await db.insert(quizGroup).values(quizLinks);
     }
 
+    // 4. Fetch the owner's name
+    const [owner] = await db.select({ fullName: userProfile.fullName })
+        .from(userProfile)
+        .where(eq(userProfile.id, ownerId))
+        .limit(1);
+
     return {
         id: newGroup.id,
         name: newGroup.name,
         description: newGroup.description,
         inviteCode: newGroup.inviteCode,
         ownerId: newGroup.createdBy,
+        ownerName: owner?.fullName || null,
+        isPublic: newGroup.isPublic,
         memberIds: [ownerId],
         quizIds: quizIds,
     };
@@ -144,4 +201,88 @@ export async function joinCommunityWithCode(
     });
 
     return { ok: true, groupId: group.id };
+}
+
+/**
+ * Retrieves a single community group by ID.
+ */
+export async function getCommunityById(groupId: string): Promise<PopulatedCommunityGroup | null> {
+    const [group] = await db
+        .select({
+            id: userGroup.id,
+            name: userGroup.name,
+            description: userGroup.description,
+            inviteCode: userGroup.inviteCode,
+            ownerId: userGroup.createdBy,
+            ownerName: userProfile.fullName,
+            isPublic: userGroup.isPublic,
+        })
+        .from(userGroup)
+        .leftJoin(userProfile, eq(userGroup.createdBy, userProfile.id))
+        .where(eq(userGroup.id, groupId))
+        .limit(1);
+
+    if (!group) return null;
+
+    const members = await db
+        .select({ userId: groupMember.userId })
+        .from(groupMember)
+        .where(eq(groupMember.groupId, group.id));
+        
+    const quizzes = await db
+        .select({ 
+            id: quiz.id, 
+            title: quiz.title, 
+            description: quiz.description, 
+            activeThisWeek: quizGroup.activeThisWeek 
+        })
+        .from(quizGroup)
+        .innerJoin(quiz, eq(quizGroup.quizId, quiz.id))
+        .where(eq(quizGroup.groupId, group.id));
+
+    return {
+        ...group,
+        memberIds: members.map(m => m.userId),
+        quizIds: quizzes.map(q => q.id),
+        quizzes: quizzes,
+    };
+}
+
+/**
+ * Adds a quiz to a group.
+ */
+export async function addQuizToGroup(groupId: string, quizId: string): Promise<void> {
+    const [existing] = await db
+        .select({ quizId: quizGroup.quizId })
+        .from(quizGroup)
+        .where(
+            and(
+                eq(quizGroup.groupId, groupId),
+                eq(quizGroup.quizId, quizId)
+            )
+        )
+        .limit(1);
+
+    if (existing) return;
+
+    await db.insert(quizGroup).values({
+        groupId,
+        quizId,
+        activeThisWeek: false
+    });
+}
+
+/**
+ * Updates the weekly status of a quiz in a group.
+ */
+export async function updateQuizWeeklyStatus(groupId: string, quizId: string, activeThisWeek: boolean): Promise<void> {
+    await db
+        .update(quizGroup)
+        .set({ activeThisWeek })
+        .where(
+            and(
+                eq(quizGroup.groupId, groupId),
+                eq(quizGroup.quizId, quizId)
+            )
+        );
 }
