@@ -11,7 +11,7 @@ import { mockCommunities } from '@/lib/mock/data';
  * Returns the populated community group with the given ID.
  * In mock mode we simply look it up from `mockCommunities`.
  */
-export async function GET(request: Request, { params }: { params: { groupId: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ groupId: string }> }) {
   try {
     const { groupId } = await params;
     console.log('Fetching groupId:', groupId, 'params awaited');

@@ -41,7 +41,7 @@ const data = {
       items: [
         {
           title: "Resources",
-          url: "#",
+          url: "/explore/resources",
         },
         {
           title: "Quiz",

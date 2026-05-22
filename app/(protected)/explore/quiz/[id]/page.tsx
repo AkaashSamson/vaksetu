@@ -3,13 +3,12 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { useParams } from "next/navigation"
-import { Compass } from "lucide-react"
+import { useParams, useRouter } from "next/navigation"
+import { Compass, ChevronLeft } from "lucide-react"
 
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { PageHeader } from "@/components/shared/PageHeader"
 
 type Difficulty = "EASY" | "MEDIUM" | "HARD"
 
@@ -57,72 +56,6 @@ function glossImageUrlByName(name: string) {
     return `/glosses/${name}.jpg`
 }
 
-const DUMMY_QUIZZES: Quiz[] = [
-    {
-        id: "5b3e3bee-cefe-41df-bb9d-ca8ab009e52d",
-        title: "Beginner Numbers 1",
-        description: "Basic number practice",
-        difficulty: "EASY",
-        type: "image_mcq",
-        questions: [
-            {
-                q_no: 1,
-                q_text: "Identify the correct sign for '6'",
-                correct_id: 6,
-                options: [
-                    { id: 8, name: "8" },
-                    { id: 3, name: "3" },
-                    { id: 7, name: "7" },
-                    { id: 6, name: "6" },
-                ],
-            },
-            {
-                q_no: 2,
-                q_text: "Identify the correct sign for '2'",
-                correct_id: 5,
-                options: [
-                    { id: 1, name: "1" },
-                    { id: 9, name: "9" },
-                    { id: 5, name: "5" },
-                    { id: 2, name: "2" },
-                ],
-            },
-        ],
-    },
-    {
-        id: "0f2b6f6d-2a2e-4c7d-9d5e-1f5e2f0a0001",
-        title: "Identify the sign (demo)",
-        description: "Sign image -> choose the correct gloss (sample labels)",
-        difficulty: "EASY",
-        type: "sign_mcq",
-        questions: [
-            {
-                q_no: 1,
-                // If your sign_mcq questions also come from gloss ids later,
-                // you can use the same helper: question_image: glossImageUrlById(101)
-                question_image: "/glosses/Z.jpg",
-                correct_id: 103,
-                options: [
-                    { id: 101, name: "Q" },
-                    { id: 102, name: "R" },
-                    { id: 103, name: "Z" },
-                    { id: 104, name: "P" },
-                ],
-            },
-            {
-                q_no: 2,
-                question_image: "/glosses/Y.jpg",
-                correct_id: 102,
-                options: [
-                    { id: 101, name: "U" },
-                    { id: 102, name: "Y" },
-                    { id: 105, name: "N" },
-                    { id: 106, name: "G" },
-                ],
-            },
-        ],
-    },
-]
 
 type AnswerMap = Record<number, number | null>
 
@@ -147,10 +80,11 @@ function optionLetter(index: number) {
 
 export default function QuizPage() {
     const params = useParams()
+    const router = useRouter()
     const targetId = params?.id as string
 
-    const [quizIndex, setQuizIndex] = React.useState(0)
-    // const quiz = DUMMY_QUIZZES[quizIndex]
+    // Quizzes list state for "Next Quiz" database routing
+    const [quizzesList, setQuizzesList] = React.useState<BaseQuiz[]>([])
 
     // Live Quiz State
     const [quiz, setQuiz] = React.useState<Quiz | null>(null)
@@ -161,6 +95,44 @@ export default function QuizPage() {
     const [answers, setAnswers] = React.useState<AnswerMap>({})
     const [showResults, setShowResults] = React.useState(false)
     const [isSubmitting, setIsSubmitting] = React.useState(false)
+    const startTimeRef = React.useRef<number>(Date.now())
+    const [submittedTimeTaken, setSubmittedTimeTaken] = React.useState<number>(0)
+    const [liveElapsed, setLiveElapsed] = React.useState<number>(0)
+
+    // Run timer while active
+    React.useEffect(() => {
+        if (showResults || !quiz) return
+
+        setLiveElapsed(0)
+        const interval = setInterval(() => {
+            const duration = Math.max(0, Math.round((Date.now() - startTimeRef.current) / 1000))
+            setLiveElapsed(duration)
+        }, 1000)
+
+        return () => clearInterval(interval)
+    }, [showResults, quiz])
+
+    function formatTime(seconds: number) {
+        const mins = Math.floor(seconds / 60)
+        const secs = seconds % 60
+        return `${mins}:${secs.toString().padStart(2, '0')}`
+    }
+
+    // Fetch Quizzes List for Navigation
+    React.useEffect(() => {
+        async function fetchList() {
+            try {
+                const res = await fetch(`/api/quiz`)
+                if (!res.ok) throw new Error("Failed to fetch quizzes list")
+                const data: BaseQuiz[] = await res.json()
+                const sorted = data.sort((a,b) => a.title.localeCompare(b.title))
+                setQuizzesList(sorted)
+            } catch (err: any) {
+                console.error("Failed to load quizzes list for play navigation:", err)
+            }
+        }
+        fetchList()
+    }, [])
 
     // Fetch Quiz Data on Mount
     React.useEffect(() => {
@@ -178,6 +150,8 @@ export default function QuizPage() {
                 setQuestionIndex(0)
                 setAnswers(Object.fromEntries(data.questions.map((q) => [q.q_no, null])))
                 setShowResults(false)
+                startTimeRef.current = Date.now()
+                setSubmittedTimeTaken(0)
             } catch (err: any) {
                 console.error(err)
                 setError(err.message)
@@ -187,7 +161,7 @@ export default function QuizPage() {
         }
 
         fetchQuiz()
-    }, [targetId]) // Refetch if the ID from URL changes
+    }, [targetId])
 
     const results = React.useMemo(() => {
         if (!quiz) return { correct: 0, wrong: 0, unanswered: 0, total: 0 }
@@ -196,6 +170,8 @@ export default function QuizPage() {
 
     React.useEffect(() => {
         if (showResults && quiz) {
+            const duration = Math.max(1, Math.round((Date.now() - startTimeRef.current) / 1000));
+            setSubmittedTimeTaken(duration);
             const submitScore = async () => {
                 setIsSubmitting(true);
                 try {
@@ -207,6 +183,7 @@ export default function QuizPage() {
                             wrong: results.wrong,
                             unanswered: results.unanswered,
                             total: results.total,
+                            timeTaken: duration,
                             answers
                         })
                     });
@@ -219,6 +196,11 @@ export default function QuizPage() {
             submitScore();
         }
     }, [showResults, quiz, results, answers]);
+
+    const currentIndexInList = React.useMemo(() => {
+        if (!quiz) return -1
+        return quizzesList.findIndex(q => q.id === quiz.id)
+    }, [quiz, quizzesList])
 
     if (isLoading) {
         return <div className="p-8 text-center text-muted-foreground">Loading quiz...</div>
@@ -249,26 +231,50 @@ export default function QuizPage() {
         setQuestionIndex(0)
         setAnswers(Object.fromEntries(quiz.questions.map((q) => [q.q_no, null])))
         setShowResults(false)
+        startTimeRef.current = Date.now()
+        setSubmittedTimeTaken(0)
     }
+
+    const hasNextQuiz = currentIndexInList !== -1 && currentIndexInList < quizzesList.length - 1
+    const canGoNextQuiz = results.correct >= Math.ceil(results.total / 2)
 
     function goToNextQuiz() {
-        const hasNext = quizIndex < DUMMY_QUIZZES.length - 1
-        if (!hasNext) return
-        setQuizIndex((i) => i + 1)
+        if (!hasNextQuiz || currentIndexInList === -1) return
+        const nextQuiz = quizzesList[currentIndexInList + 1]
+        router.push(`/explore/quiz/${nextQuiz.id}`)
     }
 
-    const canGoNextQuiz = results.correct >= Math.ceil(results.total / 2)
-    const hasNextQuiz = quizIndex < DUMMY_QUIZZES.length - 1
-
     const header = (
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-            <div className="flex items-center gap-2 px-4">
-                <SidebarTrigger className="-ml-1" />
-                <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-                <Compass className="size-4 text-muted-foreground" />
-                <h1 className="text-lg font-semibold leading-none">Quiz</h1>
-            </div>
-        </header>
+        <PageHeader 
+            title="Quizzes" 
+            icon={Compass} 
+            rightContent={
+                <div className="flex items-center gap-3">
+                    {!showResults && quiz && (
+                        <div className="flex items-center gap-1.5 text-xs font-semibold bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 px-2.5 py-1.5 rounded-full border border-green-200/40">
+                            <span className="relative flex h-1.5 w-1.5 mr-1">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                            </span>
+                            {formatTime(liveElapsed)}
+                        </div>
+                    )}
+                    {!showResults && quiz && (
+                        <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-muted-foreground hover:text-foreground hover:bg-muted flex items-center gap-1 rounded-xl border border-input"
+                            asChild
+                        >
+                            <Link href="/explore/quiz">
+                                <ChevronLeft className="size-4" />
+                                <span>Exit Quiz</span>
+                            </Link>
+                        </Button>
+                    )}
+                </div>
+            }
+        />
     )
 
     if (showResults) {
@@ -300,9 +306,9 @@ export default function QuizPage() {
                                     <div className="text-3xl font-semibold">{results.wrong}</div>
                                 </div>
 
-                                <div className="rounded-lg border p-4">
-                                    <div className="text-sm text-muted-foreground">Unanswered</div>
-                                    <div className="text-3xl font-semibold">{results.unanswered}</div>
+                                <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4">
+                                    <div className="text-sm text-muted-foreground">Time Taken</div>
+                                    <div className="text-3xl font-semibold text-blue-600">{submittedTimeTaken}s</div>
                                 </div>
 
                                 <div className="rounded-lg border p-4">
@@ -358,8 +364,8 @@ export default function QuizPage() {
                             <h2 className="text-2xl font-semibold">{quiz.title}</h2>
                             <p className="text-sm text-muted-foreground">{quiz.description}</p>
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                            Q{questionIndex + 1}/{quiz.questions.length} • Quiz {quizIndex + 1}/{DUMMY_QUIZZES.length}
+                        <div className="text-sm text-muted-foreground text-right">
+                            <div className="font-medium">Q{questionIndex + 1}/{quiz.questions.length}</div>
                         </div>
                     </div>
 

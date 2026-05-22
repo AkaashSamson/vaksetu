@@ -1,6 +1,6 @@
-import { eq, sql, desc, and, inArray } from 'drizzle-orm';
+import { eq, desc, asc, and, sql } from 'drizzle-orm';
 import { db } from '../index';
-import { userGroup, groupMember, userProfile, quizAttempt, quizGroup } from '../schema';
+import { userGroup, groupMember, userProfile } from '../schema';
 
 export interface LeaderboardRankItem {
     userId: string;
@@ -51,51 +51,32 @@ export async function getUserGroupsLeaderboardPreviews(
 }
 
 /**
- * Retrieves the complete leaderboard for a specific group, ordered by total score descending.
- * Score is calculated as the sum of the MAX score achieved per quiz.
+ * Retrieves the complete leaderboard for a specific group, ordered by weekly or all-time score descending,
+ * with chronological tie-breaking (earliest completion time wins a tie).
  */
 export async function getGroupLeaderboard(
     groupId: string, 
     timeframe: 'weekly' | 'all-time' = 'all-time',
     limit?: number
 ): Promise<LeaderboardRankItem[]> {
-    
-    // Subquery: Get the quizzes linked to this group, filtered by timeframe
-    const applicableQuizzes = db
-        .select({ id: quizGroup.quizId })
-        .from(quizGroup)
-        .where(
-            and(
-                eq(quizGroup.groupId, groupId),
-                timeframe === 'weekly' ? eq(quizGroup.activeThisWeek, true) : undefined
-            )
-        );
-
-    // Subquery: Get the max score per user per quiz for those quizzes
-    const userMaxScores = db
-        .select({
-            userId: quizAttempt.userId,
-            quizId: quizAttempt.quizId,
-            maxScore: sql<number>`MAX(CAST(${quizAttempt.totalScore} AS DECIMAL))`.as('maxScore')
-        })
-        .from(quizAttempt)
-        .where(inArray(quizAttempt.quizId, applicableQuizzes))
-        .groupBy(quizAttempt.userId, quizAttempt.quizId)
-        .as('user_max_scores');
+    const scoreExpression = timeframe === 'weekly' 
+        ? groupMember.weeklyScore 
+        : sql<number>`${groupMember.allTimeScore} + ${groupMember.weeklyScore}`;
 
     const query = db
         .select({
             userId: userProfile.id,
             fullName: userProfile.fullName,
             avatarUrl: userProfile.avatarUrl,
-            totalScore: sql<number>`COALESCE(SUM(${userMaxScores.maxScore}), 0)`.as('totalScore'),
+            totalScore: scoreExpression,
         })
         .from(groupMember)
         .innerJoin(userProfile, eq(groupMember.userId, userProfile.id))
-        .leftJoin(userMaxScores, eq(groupMember.userId, userMaxScores.userId))
         .where(eq(groupMember.groupId, groupId))
-        .groupBy(userProfile.id, userProfile.fullName, userProfile.avatarUrl)
-        .orderBy(desc(sql`COALESCE(SUM(${userMaxScores.maxScore}), 0)`));
+        .orderBy(
+            desc(scoreExpression),
+            asc(groupMember.weeklyLastUpdated)
+        );
 
     if (limit) {
         query.limit(limit);

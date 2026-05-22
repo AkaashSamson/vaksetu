@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { getAllQuizzes } from '@/lib/db/queries/quizzes';
+import { getHydratedQuizById } from '@/lib/db/queries/quizzes';
 import { isMockMode } from '@/lib/env';
 import { mockQuizzes } from '@/lib/mock/data';
 
@@ -23,9 +23,7 @@ export async function GET(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Just fetch all and find it (for simplicity, or write a getQuizById query)
-        const quizzes = await getAllQuizzes();
-        const quiz = quizzes.find(q => q.id === id);
+        const quiz = await getHydratedQuizById(id);
         
         if (!quiz) {
             return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -37,3 +35,4 @@ export async function GET(
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+

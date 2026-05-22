@@ -35,8 +35,8 @@ export default async function RootLayout({
     } : null;
 
     return (
-        <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <html lang="en" suppressHydrationWarning>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
         <SidebarProvider>
             <AppSidebar user={userProfile} />
             <SidebarInset>{children}</SidebarInset>

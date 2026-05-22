@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -297,12 +298,17 @@ export default function GroupPage() {
                                                 <div className="grid gap-3 sm:grid-cols-2">
                                                     {weeklyQuizzes.map((quiz) => (
                                                         <div key={quiz.id} className="relative rounded-xl border-2 border-green-500/20 bg-green-50/50 dark:bg-green-950/20 p-4 hover:bg-muted transition group/quiz">
-                                                            <h4 className="font-medium">{quiz.title}</h4>
-                                                            <p className="text-sm text-muted-foreground line-clamp-2">{quiz.description}</p>
+                                                            <Link href={`/explore/quiz/${quiz.id}`} className="block focus:outline-none">
+                                                                <h4 className="font-medium group-hover/quiz:text-green-600 dark:group-hover/quiz:text-green-400 transition-colors">{quiz.title}</h4>
+                                                                <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{quiz.description}</p>
+                                                            </Link>
                                                             {isAdmin && (
-                                                                <div className="mt-3">
+                                                                <div className="mt-3 relative z-10">
                                                                     <button 
-                                                                        onClick={() => toggleWeekly(quiz.id, true)}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            toggleWeekly(quiz.id, true);
+                                                                        }}
                                                                         disabled={loading}
                                                                         className="text-xs bg-background border px-2 py-1 rounded text-muted-foreground hover:text-foreground disabled:opacity-50"
                                                                     >
@@ -321,13 +327,18 @@ export default function GroupPage() {
                                                 {weeklyQuizzes.length > 0 && <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Other Quizzes</h3>}
                                                 <div className="grid gap-3 sm:grid-cols-2">
                                                     {visibleRegularQuizzes.map((quiz) => (
-                                                        <div key={quiz.id} className="relative rounded-xl border bg-background p-4 hover:bg-muted transition">
-                                                            <h4 className="font-medium">{quiz.title}</h4>
-                                                            <p className="text-sm text-muted-foreground line-clamp-2">{quiz.description}</p>
+                                                        <div key={quiz.id} className="relative rounded-xl border bg-background p-4 hover:bg-muted transition group/quiz">
+                                                            <Link href={`/explore/quiz/${quiz.id}`} className="block focus:outline-none">
+                                                                <h4 className="font-medium group-hover/quiz:text-green-600 dark:group-hover/quiz:text-green-400 transition-colors">{quiz.title}</h4>
+                                                                <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{quiz.description}</p>
+                                                            </Link>
                                                             {isAdmin && (
-                                                                <div className="mt-3">
+                                                                <div className="mt-3 relative z-10">
                                                                     <button 
-                                                                        onClick={() => toggleWeekly(quiz.id, false)}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            toggleWeekly(quiz.id, false);
+                                                                        }}
                                                                         disabled={loading}
                                                                         className="text-xs bg-muted border px-2 py-1 rounded text-muted-foreground hover:text-foreground disabled:opacity-50"
                                                                     >
@@ -380,7 +391,7 @@ export default function GroupPage() {
                                                     userId: row.userId,
                                                     fullName: row.name,
                                                     totalScore: row.score,
-                                                    quizCount: 0,
+                                                    avatarUrl: row.avatarUrl || null,
                                                 }}
                                             />
                                         ))

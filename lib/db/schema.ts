@@ -54,6 +54,7 @@ export const quizAttempt = pgTable("quiz_attempt", {
     totalScore: numeric("total_score"),
     attemptNumber: integer("attempt_number").default(1),
     response: jsonb(),
+    timeTaken: integer("time_taken").default(0).notNull(),
 }, (table) => [
     foreignKey({
         columns: [table.quizId],
@@ -76,6 +77,7 @@ export const userGroup = pgTable("user_group", {
     isDefault: boolean("is_default").default(false),
     isPublic: boolean("is_public").default(true),
     createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow(),
+    lastWeeklyReset: timestamp("last_weekly_reset", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
     foreignKey({
         columns: [table.createdBy],
@@ -106,6 +108,9 @@ export const groupMember = pgTable("group_member", {
     userId: uuid("user_id").notNull(),
     role: text().default('member'),
     joinedAt: timestamp("joined_at", { withTimezone: true, mode: 'string' }).defaultNow(),
+    weeklyScore: integer("weekly_score").default(0).notNull(),
+    allTimeScore: integer("all_time_score").default(0).notNull(),
+    weeklyLastUpdated: timestamp("weekly_last_updated", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 }, (table) => [
     foreignKey({
         columns: [table.userId],

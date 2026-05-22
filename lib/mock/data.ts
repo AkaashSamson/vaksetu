@@ -11,9 +11,9 @@ export const mockQuizzes: PopulatedQuiz[] = hardcodedQuizzes.map(q => ({
     id: q.id,
     title: q.title,
     description: q.description,
-    difficulty: q.difficulty,
+    difficulty: q.difficulty || null,
     type: 'image_mcq', // default
-    content: { questions: q.questions },
+    content: { questions: (q as any).questions || [] },
 }));
 
 export const mockCommunities: PopulatedCommunityGroup[] = hardcodedGroups.map(g => ({
@@ -22,6 +22,7 @@ export const mockCommunities: PopulatedCommunityGroup[] = hardcodedGroups.map(g 
     description: g.description,
     inviteCode: g.code,
     ownerId: g.ownerId,
+    isPublic: true,
     memberIds: g.members,
     quizIds: g.quizIds,
     // Preserve leaderboard for UI rendering. Map to the same shape expected by the page.
