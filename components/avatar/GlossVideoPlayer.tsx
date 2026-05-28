@@ -122,7 +122,7 @@ export function GlossVideoPlayer({ englishText }: Props) {
     if (isLoading) {
         return (
             <div className="flex h-full min-h-60 flex-col items-center justify-center rounded-lg bg-muted/20 p-4 border text-muted-foreground space-y-3">
-                <Loader2 className="h-6 w-6 animate-spin text-green-600" />
+                <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
                 <p className="text-sm">Mapping Glosses directly securely...</p>
             </div>
         );
@@ -132,13 +132,13 @@ export function GlossVideoPlayer({ englishText }: Props) {
     const isGap = currentGloss === "__GAP__";
 
     return (
-        <div className="flex flex-col items-center overflow-hidden rounded-lg bg-card border border-green-600/20 pb-4 h-full min-h-[300px] w-full shadow-sm">
+        <div className="flex flex-col items-center overflow-hidden rounded-lg bg-card border border-brand-600/20 pb-4 h-full min-h-[300px] w-full shadow-sm">
             {/* Status Header */}
-            <div className="w-full bg-green-50/50 dark:bg-green-900/10 px-4 py-2 flex items-center justify-between text-xs text-muted-foreground border-b border-green-600/10">
+            <div className="w-full bg-brand-50/50 dark:bg-brand-900/10 px-4 py-2 flex items-center justify-between text-xs text-muted-foreground border-b border-brand-600/10">
                 <div className="flex items-center gap-3">
                     <button 
                          onClick={() => setIsPlaying(!isPlaying)}
-                         className="p-1.5 rounded-full transition-colors flex items-center justify-center border border-green-200 dark:border-green-800 bg-white dark:bg-zinc-900 hover:bg-green-50 dark:hover:bg-green-900/40 text-green-700 dark:text-green-400 shadow-sm"
+                         className="p-1.5 rounded-full transition-colors flex items-center justify-center border border-brand-200 dark:border-brand-800 bg-white dark:bg-zinc-900 hover:bg-brand-50 dark:hover:bg-brand-900/40 text-brand-700 dark:text-brand-400 shadow-sm"
                          title={isPlaying ? "Pause Sequence" : "Play Sequence"}
                     >
                         {isPlaying ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
@@ -172,8 +172,8 @@ export function GlossVideoPlayer({ englishText }: Props) {
                 )}
             </div>
             
-            <div className="mt-4 px-5 py-1.5 text-center bg-green-100 dark:bg-green-900/30 rounded-full border border-green-200 dark:border-green-800/50 mx-auto shadow-sm">
-                <p className="text-sm font-semibold tracking-wide text-green-800 dark:text-green-300 min-w-16">
+            <div className="mt-4 px-5 py-1.5 text-center bg-brand-100 dark:bg-brand-900/30 rounded-full border border-brand-200 dark:border-brand-800/50 mx-auto shadow-sm">
+                <p className="text-sm font-semibold tracking-wide text-brand-800 dark:text-brand-300 min-w-16">
                     {isGap ? "..." : (currentGloss || "")}
                 </p>
             </div>

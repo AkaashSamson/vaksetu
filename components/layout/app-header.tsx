@@ -14,7 +14,7 @@ export function AppHeader() {
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" className="pointer-events-none">
             {/* Logo */}
-            <div className="bg-green-900 text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <div className="bg-brand-900 text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
               {/* Replace with your actual logo component/image */}
               <span className="text-sm font-bold">V</span>
             </div>

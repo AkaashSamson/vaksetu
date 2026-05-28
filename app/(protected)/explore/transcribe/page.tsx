@@ -72,7 +72,7 @@ export default function TranscribePage() {
                                     <Button 
                                         size="lg" 
                                         onClick={startRecording} 
-                                        className="w-56 bg-green-600 hover:bg-green-700 text-white rounded-full h-12 text-base font-semibold transition-all shadow-md hover:shadow-lg" 
+                                        className="w-56 bg-brand-600 hover:bg-brand-700 text-white rounded-full h-12 text-base font-semibold transition-all shadow-md hover:shadow-lg" 
                                     >
                                         <Mic className="mr-2 h-5 w-5" /> Start Analyzing Voice
                                     </Button>
@@ -82,17 +82,17 @@ export default function TranscribePage() {
 
                             {/* Show entirely different interface specifically WHILE recording */}
                             {isRecording && (
-                                <div className="w-full max-w-md bg-muted/30 border border-green-600/30 rounded-xl p-6 flex flex-col items-center animate-in fade-in zoom-in duration-300">
+                                <div className="w-full max-w-md bg-muted/30 border border-brand-600/30 rounded-xl p-6 flex flex-col items-center animate-in fade-in zoom-in duration-300">
                                     <div className="relative mb-6">
-                                        <div className="absolute inset-0 rounded-full bg-green-500/20 animate-ping" />
-                                        <div className="relative bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 p-4 rounded-full">
+                                        <div className="absolute inset-0 rounded-full bg-brand-500/20 animate-ping" />
+                                        <div className="relative bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-400 p-4 rounded-full">
                                             <Mic className="h-8 w-8 animate-pulse" />
                                         </div>
                                     </div>
                                     
                                     <h3 className="text-lg font-semibold text-foreground mb-1">Listening Closely...</h3>
                                     
-                                    <div className="flex items-center gap-2 text-sm text-green-700 dark:text-green-500 bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full mb-6">
+                                    <div className="flex items-center gap-2 text-sm text-brand-700 dark:text-brand-50 bg-brand-100 dark:bg-brand-900/30 px-3 py-1 rounded-full mb-6">
                                         <Clock className="w-4 h-4" />
                                         <span className="font-mono font-medium">Recording stops internally in {secondsRemaining}s</span>
                                     </div>
@@ -128,9 +128,9 @@ export default function TranscribePage() {
                             {result && !isRecording && !isProcessing && (
                                 <div className="w-full mt-4 flex flex-col gap-4 text-left animate-in slide-in-from-bottom-4 duration-500">
                                     {/* Native Script Box */}
-                                    <div className="border border-green-600/30 bg-green-50/50 dark:bg-green-900/10 rounded-md p-4">
-                                        <h3 className="text-xs font-bold uppercase tracking-wider text-green-700 dark:text-green-500 mb-2">Native Transcript Generated</h3>
-                                        <p className="text-foreground text-lg px-2 py-1 leading-relaxed rounded bg-background/50 border border-green-100 dark:border-green-800 shadow-sm min-h-12 whitespace-pre-wrap">{result.native_text || "No text detected."}</p>
+                                    <div className="border border-brand-600/30 bg-brand-50/50 dark:bg-brand-900/10 rounded-md p-4">
+                                        <h3 className="text-xs font-bold uppercase tracking-wider text-brand-700 dark:text-brand-500 mb-2">Native Transcript Generated</h3>
+                                        <p className="text-foreground text-lg px-2 py-1 leading-relaxed rounded bg-background/50 border border-brand-100 dark:border-brand-800 shadow-sm min-h-12 whitespace-pre-wrap">{result.native_text || "No text detected."}</p>
                                     </div>
                                     
                                     {/* English Translation Box */}

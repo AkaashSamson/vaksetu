@@ -86,7 +86,7 @@ export default function QuizPage() {
                                 return (
                                     <Card 
                                         key={q.id} 
-                                        className="flex flex-col p-5 cursor-pointer transition-all hover:border-green-500/40 hover:shadow-sm" 
+                                        className="flex flex-col p-5 cursor-pointer transition-all hover:border-brand-500/40 hover:shadow-sm" 
                                         onClick={() => router.push(`/explore/quiz/${q.id}`)}
                                     >
                                         <div className="flex items-start justify-between gap-3 mb-2">

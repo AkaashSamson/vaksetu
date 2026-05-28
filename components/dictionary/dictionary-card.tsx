@@ -55,7 +55,7 @@ function DictionaryMedia({ entry }: { entry: DictionaryEntry }) {
 
 export function DictionaryCard({ entry, onTagClick }: DictionaryCardProps) {
     return (
-        <article className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:border-green-500 hover:shadow-md">
+        <article className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:border-brand-500 hover:shadow-md">
             <div className="relative h-44 w-full overflow-hidden bg-muted">
                 <DictionaryMedia entry={entry} />
             </div>
@@ -77,7 +77,7 @@ export function DictionaryCard({ entry, onTagClick }: DictionaryCardProps) {
                                 key={t}
                                 type="button"
                                 onClick={() => onTagClick?.(t)}
-                                className="rounded-full border border-green-500/25 bg-green-500/10 px-2.5 py-1 text-[11px] text-green-700 hover:bg-green-500/15 dark:text-green-400"
+                                className="rounded-full border border-brand-500/25 bg-brand-500/10 px-2.5 py-1 text-[11px] text-brand-700 hover:bg-brand-500/15 dark:text-brand-400"
                                 title="Filter by this tag"
                             >
                                 {t}

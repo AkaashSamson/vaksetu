@@ -251,10 +251,10 @@ export default function QuizPage() {
             rightContent={
                 <div className="flex items-center gap-3">
                     {!showResults && quiz && (
-                        <div className="flex items-center gap-1.5 text-xs font-semibold bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 px-2.5 py-1.5 rounded-full border border-green-200/40">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 px-2.5 py-1.5 rounded-full border border-brand-200/40">
                             <span className="relative flex h-1.5 w-1.5 mr-1">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-green-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-brand-500"></span>
                             </span>
                             {formatTime(liveElapsed)}
                         </div>
@@ -294,11 +294,11 @@ export default function QuizPage() {
                             </div>
                         </div>
 
-                        <Card className="mt-4 border-green-500/30 p-5">
+                        <Card className="mt-4 border-brand-500/30 p-5">
                             <div className="grid gap-3 sm:grid-cols-2">
-                                <div className="rounded-lg border border-green-500/30 bg-green-500/5 p-4">
+                                <div className="rounded-lg border border-brand-500/30 bg-brand-500/5 p-4">
                                     <div className="text-sm text-muted-foreground">Correct</div>
-                                    <div className="text-3xl font-semibold text-green-600">{results.correct}</div>
+                                    <div className="text-3xl font-semibold text-brand-600">{results.correct}</div>
                                 </div>
 
                                 <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
@@ -320,7 +320,7 @@ export default function QuizPage() {
                             {!canGoNextQuiz ? (
                                 <p className="mt-4 text-sm text-muted-foreground">
                                     Score at least{" "}
-                                    <span className="font-medium text-green-700">{Math.ceil(results.total / 2)}</span>{" "}
+                                    <span className="font-medium text-brand-700">{Math.ceil(results.total / 2)}</span>{" "}
                                     correct to unlock the next quiz.
                                 </p>
                             ) : null}
@@ -329,18 +329,18 @@ export default function QuizPage() {
                                 <Button
                                     variant="secondary"
                                     onClick={resetQuizAttempt}
-                                    className="border border-green-500/30"
+                                    className="border border-brand-500/30"
                                 >
                                     Try again
                                 </Button>
 
-                                <Button asChild className="bg-green-600 hover:bg-green-700">
+                                <Button asChild className="bg-brand-600 hover:bg-brand-700">
                                     <Link href="/explore/leaderboard">Visit leaderboard</Link>
                                 </Button>
 
                                 <Button
                                     onClick={goToNextQuiz}
-                                    className="bg-green-600 hover:bg-green-700"
+                                    className="bg-brand-600 hover:bg-brand-700"
                                     disabled={!hasNextQuiz || !canGoNextQuiz}
                                 >
                                     Next
@@ -372,7 +372,7 @@ export default function QuizPage() {
                     <div className="mt-3">
                         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                             <div
-                                className="h-full rounded-full bg-green-600 transition-[width] duration-300 ease-out"
+                                className="h-full rounded-full bg-brand-600 transition-[width] duration-300 ease-out"
                                 style={{ width: `${progressPct}%` }}
                             />
                         </div>
@@ -407,8 +407,8 @@ export default function QuizPage() {
                                                         className={[
                                                             "overflow-hidden rounded-xl border text-left transition",
                                                             isSelected
-                                                                ? "border-green-500 ring-4 ring-green-400/15 px-2.5"
-                                                                : "hover:border-green-400/60 hover:ring-4 hover:ring-green-400/10",
+                                                                ? "border-brand-500 ring-4 ring-brand-400/15 px-2.5"
+                                                                : "hover:border-brand-400/60 hover:ring-4 hover:ring-brand-400/10",
                                                         ].join(" ")}
                                                     >
                                                         <div className="relative aspect-4/3 w-full bg-gray-900">
@@ -419,7 +419,7 @@ export default function QuizPage() {
                                                                 className="object-contain"
                                                                 sizes="(min-width: 640px) 50vw, 100vw"
                                                             />
-                                                            <div className="absolute left-3 top-3 rounded-full bg-green-600 px-2.5 py-1 text-xs font-semibold text-white">
+                                                            <div className="absolute left-3 top-3 rounded-full bg-brand-600 px-2.5 py-1 text-xs font-semibold text-white">
                                                                 {letter}
                                                             </div>
                                                         </div>
@@ -439,7 +439,7 @@ export default function QuizPage() {
                                     <>
                                         <div className="text-sm text-muted-foreground">Question {current.q_no}</div>
 
-                                        <div className="mt-4 overflow-hidden rounded-xl border border-green-500/30 bg-muted">
+                                        <div className="mt-4 overflow-hidden rounded-xl border border-brand-500/30 bg-muted">
                                             <div className="relative aspect-video w-full bg-gray-900">
                                                 <Image
                                                     src={current.question_image}
@@ -463,8 +463,8 @@ export default function QuizPage() {
                                                         className={[
                                                             "w-full rounded-lg border p-4 text-left transition",
                                                             isSelected
-                                                                ? "border-green-500 bg-green-500/10"
-                                                                : "hover:border-green-400/60 hover:bg-muted",
+                                                                ? "border-brand-500 bg-brand-500/10"
+                                                                : "hover:border-brand-400/60 hover:bg-muted",
                                                         ].join(" ")}
                                                     >
                                                         <div className="flex items-center justify-between gap-3">
@@ -489,7 +489,7 @@ export default function QuizPage() {
                                     Reset
                                 </Button>
 
-                                <Button onClick={nextQuestion} className="bg-green-600 hover:bg-green-700">
+                                <Button onClick={nextQuestion} className="bg-brand-600 hover:bg-brand-700">
                                     {isLastQuestion ? "Finish" : "Next"}
                                 </Button>
                             </div>

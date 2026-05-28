@@ -12,11 +12,11 @@ export function TopicCard({ title, description, imageUrl, href }: TopicCardProps
         <article
             className={[
                 "group relative overflow-hidden rounded-xl border-2",
-                "border-green-600 bg-card shadow-sm",
+                "border-brand-600 bg-card shadow-sm",
                 "transition-all duration-200 ease-out",
-                "hover:-translate-y-1 hover:border-green-800 hover:shadow-lg",
-                "hover:ring-4 hover:ring-green-400/20",
-                "focus-within:ring-4 focus-within:ring-green-400/25",
+                "hover:-translate-y-1 hover:border-brand-800 hover:shadow-lg",
+                "hover:ring-4 hover:ring-brand-400/20",
+                "focus-within:ring-4 focus-within:ring-brand-400/25",
             ].join(" ")}
         >
             {/* Square tile */}

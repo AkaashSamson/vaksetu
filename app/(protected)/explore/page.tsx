@@ -3,7 +3,7 @@
 import { Compass } from "lucide-react"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
-import { TopicCard } from "@/components/topic-card"
+import { TopicCard } from "@/components/topics/topic-card"
 
 const topics = [
     {

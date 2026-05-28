@@ -12,7 +12,7 @@ interface LeaderboardGroupCardProps {
 
 export function LeaderboardGroupCard({ group }: LeaderboardGroupCardProps) {
     return (
-        <Card className="flex flex-col p-5 transition-all hover:border-green-500/40 hover:shadow-sm">
+        <Card className="flex flex-col p-5 transition-all hover:border-brand-500/40 hover:shadow-sm">
             <div className="flex items-start justify-between gap-3 mb-2">
                 <h3 className="font-semibold text-lg line-clamp-2 leading-tight flex items-center gap-2">
                     <Users className="w-5 h-5 text-muted-foreground" />

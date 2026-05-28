@@ -286,3 +286,55 @@ export async function updateQuizWeeklyStatus(groupId: string, quizId: string, ac
             )
         );
 }
+
+/**
+ * Joins a group by group ID directly.
+ */
+export async function joinCommunityById(
+    groupId: string,
+    userId: string
+): Promise<{ ok: boolean; error?: string }> {
+    // 1. Check if already member
+    const [existing] = await db
+        .select({ userId: groupMember.userId })
+        .from(groupMember)
+        .where(
+            and(
+                eq(groupMember.groupId, groupId),
+                eq(groupMember.userId, userId)
+            )
+        )
+        .limit(1);
+
+    if (existing) {
+        return { ok: true }; // Already joined
+    }
+
+    // 2. Insert membership
+    await db.insert(groupMember).values({
+        groupId: groupId,
+        userId: userId,
+        role: 'member',
+    });
+
+    return { ok: true };
+}
+
+/**
+ * Leaves a group by group ID.
+ */
+export async function leaveCommunityById(
+    groupId: string,
+    userId: string
+): Promise<{ ok: boolean; error?: string }> {
+    await db
+        .delete(groupMember)
+        .where(
+            and(
+                eq(groupMember.groupId, groupId),
+                eq(groupMember.userId, userId)
+            )
+        );
+
+    return { ok: true };
+}

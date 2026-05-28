@@ -8,7 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Modal } from "@/components/communities/Modal";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Button } from "@/components/ui/button";
-import { quizCatalog } from "@/lib/quizzes/catalog";
 import { useRouter } from "next/navigation";
 import { PopulatedCommunityGroup } from "@/lib/db/queries/communities";
 
@@ -60,7 +59,6 @@ export default function CommunitiesPage() {
     const [groupName, setGroupName] = useState("");
     const [groupDesc, setGroupDesc] = useState("");
     const [groupCode, setGroupCode] = useState(generateCode());
-    const [selectedQuizIds, setSelectedQuizIds] = useState<string[]>([]);
     const [isPublic, setIsPublic] = useState(true);
     const [createLoading, setCreateLoading] = useState(false);
 
@@ -102,7 +100,7 @@ export default function CommunitiesPage() {
                     name: groupName,
                     description: groupDesc,
                     code: groupCode,
-                    quizIds: selectedQuizIds,
+                    quizIds: [],
                     isPublic: isPublic,
                 }),
             });
@@ -115,7 +113,6 @@ export default function CommunitiesPage() {
                 setGroupName("");
                 setGroupDesc("");
                 setGroupCode(generateCode());
-                setSelectedQuizIds([]);
                 setIsPublic(true);
 
                 router.push(`/explore/communities/${newGroup.id}`);
@@ -237,7 +234,6 @@ export default function CommunitiesPage() {
                             className="w-full sm:w-auto rounded-xl bg-green-900 px-4 py-2 text-sm font-medium text-white hover:bg-green-800 transition-colors shadow-sm"
                             onClick={() => {
                                 setGroupCode(generateCode());
-                                setSelectedQuizIds([]);
                                 setCreateOpen(true);
                             }}
                         >
@@ -323,46 +319,6 @@ export default function CommunitiesPage() {
                         />
                         <span className="font-medium">Make this group private (Hidden from others)</span>
                     </label>
-
-                    {/* Quiz selection */}
-                    <div className="space-y-2">
-                        <div className="text-sm font-medium">Quizzes for this community</div>
-                        <div className="rounded-xl border p-3 space-y-2">
-                            {quizCatalog.map((q) => {
-                                const checked = selectedQuizIds.includes(q.id);
-                                return (
-                                    <label key={q.id} className="flex items-start gap-3 text-sm">
-                                        <input
-                                            type="checkbox"
-                                            checked={checked}
-                                            onChange={(e) => {
-                                                setSelectedQuizIds((prev) =>
-                                                    e.target.checked
-                                                        ? Array.from(new Set([...prev, q.id]))
-                                                        : prev.filter((id) => id !== q.id)
-                                                );
-                                            }}
-                                            className="mt-1"
-                                        />
-                                        <span className="min-w-0">
-                      <span className="font-medium">{q.title}</span>
-                                            {q.difficulty ? (
-                                                <span className="ml-2 text-xs text-muted-foreground">
-                          ({q.difficulty})
-                        </span>
-                                            ) : null}
-                                            <span className="block text-xs text-muted-foreground">
-                        {q.description}
-                      </span>
-                    </span>
-                                    </label>
-                                );
-                            })}
-                            {quizCatalog.length === 0 ? (
-                                <p className="text-xs text-muted-foreground">No quizzes available.</p>
-                            ) : null}
-                        </div>
-                    </div>
 
                     <button
                         type="button"

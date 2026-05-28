@@ -31,7 +31,7 @@ export default async function ResourcesPage() {
                                     key={resource.id}
                                     className="group outline-none"
                                 >
-                                    <Card className="flex flex-col h-full overflow-hidden cursor-pointer transition-all hover:border-green-500/40 hover:shadow-sm">
+                                    <Card className="flex flex-col h-full overflow-hidden cursor-pointer transition-all hover:border-brand-500/40 hover:shadow-sm">
                                         <div className="relative w-full aspect-video bg-muted/30 flex items-center justify-center overflow-hidden border-b border-muted">
                                             {resource.thumbnailUrl ? (
                                                 <img 
@@ -45,7 +45,7 @@ export default async function ResourcesPage() {
                                         </div>
                                         <div className="flex flex-col flex-1 p-5">
                                             <div className="flex items-start justify-between gap-3 mb-2">
-                                                <h3 className="font-semibold text-lg line-clamp-2 leading-tight group-hover:text-green-700 dark:group-hover:text-green-500 transition-colors">
+                                                <h3 className="font-semibold text-lg line-clamp-2 leading-tight group-hover:text-brand-700 dark:group-hover:text-brand-500 transition-colors">
                                                     {resource.title}
                                                 </h3>
                                                 <Icon className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
