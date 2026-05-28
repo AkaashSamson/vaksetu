@@ -84,8 +84,12 @@ vaksetu/
 │   ├── auth/                 # Auth UI components (AuthGate, LoginBlocker)
 │   ├── avatar/               # Output rendering components (GlossVideoPlayer, SignAvatar)
 │   ├── communities/          # Group forum/modal dialog components
+│   ├── dictionary/           # Dictionary entry cards and subcomponents
+│   ├── layout/               # Sidebar, header, and main layout components
 │   ├── leaderboard/          # Gamified ranking cards and items
 │   ├── shared/               # Reusable shared layout blocks (e.g., PageHeader)
+│   ├── topics/               # Explorer grid topic cards and elements
+│   ├── translation/          # Video/audio recorders and real-time translators
 │   └── ui/                   # Shadcn/ui foundational primitives (cards, input, buttons)
 ├── docs/                     # Project architectural guides and documentation
 ├── hooks/                    # Reusable React hooks

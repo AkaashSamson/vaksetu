@@ -5,5 +5,6 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 const connectionString = process.env.DATABASE_URL!;
-const client = postgres(connectionString);
+const isTransactionPooler = connectionString.includes(':6543') || connectionString.includes('pgbouncer=true');
+const client = postgres(connectionString, isTransactionPooler ? { prepare: false } : undefined);
 export const db = drizzle(client, { schema });
