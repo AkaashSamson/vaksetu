@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Languages, Mic, Camera } from "lucide-react";
-import { CameraPreview } from "@/components/camera-preview";
-import { AudioRecorderCard } from "@/components/microphone-input";
+import { CameraPreview } from "@/components/translation/camera-preview";
+import { AudioRecorderCard } from "@/components/translation/microphone-input";
 import { GlossVideoPlayer } from "@/components/avatar/GlossVideoPlayer";
 
 type Mode = "sign-to-text" | "speech-to-sign";

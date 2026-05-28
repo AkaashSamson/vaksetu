@@ -4,7 +4,7 @@ import { addQuizToGroup, getCommunityById } from '@/lib/db/queries/communities';
 
 export async function POST(
     request: Request,
-    { params }: { params: { groupId: string } }
+    { params }: { params: Promise<{ groupId: string }> }
 ) {
     try {
         const { groupId } = await params;

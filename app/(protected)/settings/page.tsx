@@ -129,7 +129,7 @@ export default function SettingsPage() {
                                     </div>
                                 )}
                                 {successMsg && (
-                                    <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-600">
+                                    <div className="rounded-lg border border-brand-500/30 bg-brand-500/10 p-3 text-sm text-brand-600">
                                         {successMsg}
                                     </div>
                                 )}
@@ -183,7 +183,7 @@ export default function SettingsPage() {
 
                                 <Button 
                                     type="submit" 
-                                    className="bg-green-800 hover:bg-green-950 text-white" 
+                                    className="bg-brand-800 hover:bg-brand-900 text-white" 
                                     disabled={saving}
                                 >
                                     {saving ? "Saving changes..." : "Save Changes"}

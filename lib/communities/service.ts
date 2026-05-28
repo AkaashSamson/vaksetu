@@ -111,7 +111,13 @@ export async function joinGroup(params: {
     groupId: string;
     userId: string;
 }): Promise<{ ok: true }> {
-    await sleep(300);
+    const res = await fetch(`/api/communities/${params.groupId}`, {
+        method: "POST",
+    });
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to join group");
+    }
     return { ok: true };
 }
 
@@ -119,7 +125,13 @@ export async function leaveGroup(params: {
     groupId: string;
     userId: string;
 }): Promise<{ ok: true }> {
-    await sleep(300);
+    const res = await fetch(`/api/communities/${params.groupId}`, {
+        method: "DELETE",
+    });
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to leave group");
+    }
     return { ok: true };
 }
 

@@ -326,7 +326,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
 
     const statusPill =
         status === "recording" ? (
-            <span className="inline-flex items-center rounded-full border border-green-600/40 bg-green-600/10 px-2 py-0.5 text-[11px] font-medium text-green-700 dark:text-green-400">
+            <span className="inline-flex items-center rounded-full border border-brand-600/40 bg-brand-600/10 px-2 py-0.5 text-[11px] font-medium text-brand-700 dark:text-brand-400">
         Recording
       </span>
         ) : (status === "processing" || status === "translating") ? (
@@ -334,7 +334,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
         Processing
       </span>
         ) : status === "finished" ? (
-            <span className="inline-flex items-center rounded-full border border-green-600/30 bg-green-600/5 px-2 py-0.5 text-[11px] font-medium text-green-700 dark:text-green-400">
+            <span className="inline-flex items-center rounded-full border border-brand-600/30 bg-brand-600/5 px-2 py-0.5 text-[11px] font-medium text-brand-700 dark:text-brand-400">
         Transcribed
       </span>
         ) : null;
@@ -358,7 +358,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
                             value={lang}
                             onChange={(e) => setLang(e.target.value)}
                             disabled={status === "recording" || status === "processing" || status === "translating"}
-                            className="h-9 rounded-md border border-green-600/40 bg-background px-2 text-sm text-foreground focus:border-green-600 focus:ring-2 focus:ring-green-600/20 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="h-9 rounded-md border border-brand-600/40 bg-background px-2 text-sm text-foreground focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {LANG_OPTIONS.map((opt) => (
                                 <option key={opt.code} value={opt.code}>
@@ -373,7 +373,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
                             type="button"
                             onClick={start}
                             disabled={!canRecord}
-                            className="h-9 rounded-md border border-green-600 bg-green-600/10 px-3 text-sm font-medium text-green-700 hover:bg-green-600/15 focus:ring-2 focus:ring-green-600/25 disabled:cursor-not-allowed disabled:opacity-50 dark:text-green-400"
+                            className="h-9 rounded-md border border-brand-600 bg-brand-600/10 px-3 text-sm font-medium text-brand-700 hover:bg-brand-600/15 focus:ring-2 focus:ring-brand-600/25 disabled:cursor-not-allowed disabled:opacity-50 dark:text-brand-400"
                         >
                             Record
                         </button>
@@ -381,7 +381,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
                         <button
                             type="button"
                             onClick={stop}
-                            className="h-9 rounded-md border border-green-600 bg-background px-3 text-sm text-foreground hover:bg-green-600/10"
+                            className="h-9 rounded-md border border-brand-600 bg-background px-3 text-sm text-foreground hover:bg-brand-600/10"
                         >
                             Stop
                         </button>
@@ -422,7 +422,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
                     </div>
                     <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                            className="h-full bg-green-600/70 transition-[width] duration-100"
+                            className="h-full bg-brand-600/70 transition-[width] duration-100"
                             style={{ width: `${Math.round(level * 100)}%` }}
                         />
                     </div>
@@ -430,7 +430,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
                         {bars.map((b, idx) => (
                             <div
                                 key={idx}
-                                className="w-full rounded-sm bg-green-600/50"
+                                className="w-full rounded-sm bg-brand-600/50"
                                 style={{ height: `${Math.max(3, Math.round(b * 40))}px` }}
                             />
                         ))}
@@ -448,7 +448,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
 
             {/* Translating / Finished Phase */}
             {(status === "translating" || status === "finished") && (
-                <div className="rounded-lg bg-green-50/50 dark:bg-green-900/10 border border-green-600/30 p-4 animate-in slide-in-from-bottom-4 duration-500">
+                <div className="rounded-lg bg-brand-50/50 dark:bg-brand-900/10 border border-brand-600/30 p-4 animate-in slide-in-from-bottom-4 duration-500">
                     <div className="space-y-3">
                         <div>
                              <p className="text-xs text-muted-foreground mb-1">Native Input:</p>
@@ -462,7 +462,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
                                      Translating to English...
                                 </div>
                              ) : (
-                                <p className="text-sm text-foreground bg-green-100/50 dark:bg-green-950/50 rounded border border-green-200/50 dark:border-green-800 p-2 font-medium">{englishTranscript || "Translation failed."}</p>
+                                <p className="text-sm text-foreground bg-brand-100/50 dark:bg-brand-950/50 rounded border border-brand-200/50 dark:border-brand-800 p-2 font-medium">{englishTranscript || "Translation failed."}</p>
                              )}
                         </div>
                     </div>

@@ -14,9 +14,9 @@ import {
   SquareTerminal,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
-import { AppHeader } from "@/components/app-header"
+import { NavMain } from "@/components/layout/nav-main"
+import { NavUser } from "@/components/layout/nav-user"
+import { AppHeader } from "@/components/layout/app-header"
 import {
   Sidebar,
   SidebarContent,
@@ -41,7 +41,7 @@ const data = {
       items: [
         {
           title: "Resources",
-          url: "#",
+          url: "/explore/resources",
         },
         {
           title: "Quiz",

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { DictionaryCard, type DictionaryEntry } from "@/components/dictionary-card";
+import { DictionaryCard, type DictionaryEntry } from "@/components/dictionary/dictionary-card";
 
 function normalize(s: string) {
     return s.trim().toLowerCase();

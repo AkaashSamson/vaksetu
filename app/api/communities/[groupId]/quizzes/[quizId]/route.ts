@@ -4,7 +4,7 @@ import { updateQuizWeeklyStatus, getCommunityById } from '@/lib/db/queries/commu
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { groupId: string; quizId: string } }
+    { params }: { params: Promise<{ groupId: string; quizId: string }> }
 ) {
     try {
         const { groupId, quizId } = await params;

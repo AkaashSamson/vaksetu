@@ -69,8 +69,10 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
             } else if (result.success) {
                 setMode("login")
                 onAuthed()
-                // Force reload so next/cache recognizes the new cookies and client components refresh
-                window.location.reload()
+                // Force reload so next/cache recognizes the new cookies and client components refresh, but only if we aren't redirecting away from the login page
+                if (window.location.pathname !== "/login") {
+                    window.location.reload()
+                }
             }
         } catch (err: unknown) {
             const e = err as { message?: string }
@@ -82,7 +84,7 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4" aria-modal="true" role="dialog">
-            <Card className="w-full max-w-md border-green-500/20">
+            <Card className="w-full max-w-md border-brand-500/20">
                 <CardHeader>
                     <CardTitle className="text-2xl">Login required</CardTitle>
                     <CardDescription>Please log in to continue.</CardDescription>
@@ -91,10 +93,10 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
                 <CardContent>
                     <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)} className="w-full">
                         <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="login" className="data-[state=active]:bg-green-800 data-[state=active]:text-white">
+                            <TabsTrigger value="login" className="data-[state=active]:bg-brand-800 data-[state=active]:text-white">
                                 Login
                             </TabsTrigger>
-                            <TabsTrigger value="signup" className="data-[state=active]:bg-green-800 data-[state=active]:text-white">
+                            <TabsTrigger value="signup" className="data-[state=active]:bg-brand-800 data-[state=active]:text-white">
                                 Sign up
                             </TabsTrigger>
                         </TabsList>
@@ -115,7 +117,7 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="focus-visible:ring-green-950"
+                                    className="focus-visible:ring-brand-950"
                                     autoComplete="username"
                                     required
                                 />
@@ -129,7 +131,7 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="focus-visible:ring-green-950"
+                                className="focus-visible:ring-brand-950"
                                 autoComplete="email"
                                 required
                                 autoFocus
@@ -143,7 +145,7 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="focus-visible:ring-green-950"
+                                className="focus-visible:ring-brand-950"
                                 autoComplete={isSignup ? "new-password" : "current-password"}
                                 required
                             />
@@ -157,21 +159,21 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
                                     type="password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="focus-visible:ring-green-950"
+                                    className="focus-visible:ring-brand-950"
                                     autoComplete="new-password"
                                     required
                                 />
                             </div>
                         ) : null}
 
-                        <Button className="bg-green-800 hover:bg-green-950" type="submit" disabled={loading}>
+                        <Button className="bg-brand-800 hover:bg-brand-900" type="submit" disabled={loading}>
                             {loading ? "Please wait..." : isSignup ? "Create account" : "Login"}
                         </Button>
 
                         <Button
                             type="button"
                             variant="outline"
-                            className="border-green-800 text-green-800 hover:bg-green-600 hover:text-white"
+                            className="border-brand-800 text-brand-800 hover:bg-brand-600 hover:text-white"
                             disabled={loading}
                             onClick={async () => {
                                 setLoading(true)

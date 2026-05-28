@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getQuizById } from '@/lib/db/queries/quizzes';
+import { getHydratedQuizById } from '@/lib/db/queries/quizzes';
 
 // A dynamic GET endpoint that takes the { id } as part of the resolved params promise
 export async function GET(
@@ -8,7 +8,7 @@ export async function GET(
 ) {
     try {
         const id = (await context.params).id;
-        const quiz = await getQuizById(id);
+        const quiz = await getHydratedQuizById(id);
 
         if (!quiz) {
             return NextResponse.json({ error: "Quiz not found" }, { status: 404 });
