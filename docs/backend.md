@@ -20,3 +20,49 @@ When `/api/quiz/[id]` is called, the Drizzle query layer (`quizzes.ts`) does the
 This API structure guarantees that the frontend and backend remain strictly independent. 
 
 The frontend uses strict TypeScript Types (`ImageMCQQuestion` and `SignMCQQuestion`) when rendering the UI. Our Drizzle queries guarantee that the JSON returned from `/api/quiz/[id]` conforms 100% to those frontend definitions. The frontend developer only needs to interact with these JSON endpoints and never touches Drizzle or the PostgreSQL constraints. This makes the project highly maintainable, as the database can be scaled or migrated (as we did when we moved `type` to the root `quiz` table) without breaking the client-side code.
+
+---
+
+## 5.4 Supabase Database & Synchronization
+
+We support a dual-database environment with a local Docker-based Supabase development instance and a remote managed Supabase cloud instance. The schemas are unified using a structured migrations-first approach, and data can be securely synchronized using single Git-like commands.
+
+### 5.4.1 Command Workflows (`package.json`)
+
+To make managing the remote database as easy as Git, we have registered several dedicated scripts:
+
+#### 1. Push Schema (`npm run db:push`)
+Pushes any new local schema migrations located in `supabase/migrations/` directly to the remote database. Use this command whenever you change the database schema (e.g., adding a table or modifying columns) and want the cloud database to mirror the schema without clearing any existing remote data.
+
+#### 2. Pull Schema (`npm run db:pull`)
+Pulls remote schema modifications back down into the local migrations folder.
+
+#### 3. Full Parity Sync / Replication (`npm run db:replicate`)
+Establishes a perfect replica of your current local database into the remote cloud database. 
+- **What it does**: 
+  1. Dynamically dumps the *current up-to-date local data* into `supabase/local_data.sql`.
+  2. Runs `supabase/clear_remote.sql` using a transactional cascading truncate to safely empty all remote tables (bypassing triggers).
+  3. Restores and inserts all local records from `supabase/local_data.sql` to the remote database under replica mode.
+- **When to use**: Use this when you have new local test users, profiles, glosses, or quizzes that you want to publish cleanly to the cloud database.
+
+#### 4. Incremental Seed Upload (`npm run db:seed-remote`)
+Uploads raw seed records in `supabase/seed.sql` to the remote database without wiping or modifying any existing remote tables.
+
+---
+
+### 5.4.2 Security Warning: Row Level Security (RLS)
+> [!WARNING]
+> Both the local development and remote databases currently have Row Level Security (RLS) disabled for several key public tables (`glosses`, `group_member`, `learning_resource`, `quiz`, `quiz_attempt`, `quiz_group`, `user_group`, `user_profile`).
+>
+> To secure the application for production release, RLS must be enabled with correct policies:
+> ```sql
+> ALTER TABLE public.glosses ENABLE ROW LEVEL SECURITY;
+> ALTER TABLE public.group_member ENABLE ROW LEVEL SECURITY;
+> ALTER TABLE public.learning_resource ENABLE ROW LEVEL SECURITY;
+> ALTER TABLE public.quiz ENABLE ROW LEVEL SECURITY;
+> ALTER TABLE public.quiz_attempt ENABLE ROW LEVEL SECURITY;
+> ALTER TABLE public.quiz_group ENABLE ROW LEVEL SECURITY;
+> ALTER TABLE public.user_group ENABLE ROW LEVEL SECURITY;
+> ALTER TABLE public.user_profile ENABLE ROW LEVEL SECURITY;
+> ```
+
