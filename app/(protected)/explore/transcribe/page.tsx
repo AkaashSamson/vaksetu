@@ -134,7 +134,7 @@ export default function TranscribePage() {
                                     {/* English Translation Box */}
                                     {result.english_text && (
                                         <div className="border border-blue-600/30 bg-blue-50/50 dark:bg-blue-900/10 rounded-md p-4">
-                                            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-500 mb-2">English Translation Model Output</h3>
+                                            <h3 className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-500 mb-2">English Translation</h3>
                                             <p className="text-foreground text-lg px-2 py-1 leading-relaxed rounded bg-background/50 border border-blue-100 dark:border-blue-800 shadow-sm min-h-12 whitespace-pre-wrap">{result.english_text}</p>
                                         </div>
                                     )}

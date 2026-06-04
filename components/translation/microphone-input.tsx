@@ -442,7 +442,7 @@ export function AudioRecorderCard({ maxDurationMs = 10000, defaultLang = "hi-IN"
             {status === "processing" && (
                 <div className="rounded-lg bg-muted/20 p-8 flex flex-col items-center justify-center border border-dashed border-amber-600/30 text-amber-600/80 space-y-3 animate-in fade-in zoom-in">
                     <Loader2 className="h-6 w-6 animate-spin text-amber-600" />
-                    <p className="text-sm">Batching audio block through Sarvam AI...</p>
+                    <p className="text-sm">Batching audio block...</p>
                 </div>
             )}
 

@@ -43,9 +43,8 @@ async function translateToEnglish(text: string, sourceLang: string): Promise<str
             body: JSON.stringify(payload)
         });
         const data = await response.json();
-        
         if (!response.ok) {
-            console.error("Translation returned an error from Sarvam:", data);
+            console.error("Translation returned an error:", data);
             return `[Translation API Error: ${JSON.stringify(data)}]`;
         }
         
