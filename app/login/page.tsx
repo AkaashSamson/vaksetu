@@ -9,16 +9,22 @@ export default function LoginPage() {
     const supabase = createClient()
 
     React.useEffect(() => {
+        console.log("LoginPage: checkSession started")
         async function checkSession() {
             try {
-                const { data: { user } } = await supabase.auth.getUser()
+                console.log("LoginPage: calling supabase.auth.getUser()...")
+                const result = await supabase.auth.getUser()
+                console.log("LoginPage: supabase.auth.getUser() completed:", result)
+                const user = result.data?.user
                 if (user) {
+                    console.log("LoginPage: user found, redirecting...")
                     window.location.href = "/explore"
                 } else {
+                    console.log("LoginPage: no user found, showing login blockers")
                     setChecking(false)
                 }
             } catch (err) {
-                console.error("Error checking session:", err)
+                console.error("LoginPage: Error checking session:", err)
                 setChecking(false)
             }
         }

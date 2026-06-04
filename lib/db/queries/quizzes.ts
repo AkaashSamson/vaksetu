@@ -7,7 +7,6 @@ export interface PopulatedQuiz {
     title: string;
     description: string | null;
     difficulty: string | null;
-    type: string;
     content: any; // jsonb
 }
 
@@ -21,7 +20,6 @@ export async function getAllQuizzes(): Promise<PopulatedQuiz[]> {
             title: quiz.title,
             description: quiz.description,
             difficulty: quiz.difficulty,
-            type: quiz.type,
             content: quiz.content,
         })
         .from(quiz);
@@ -78,7 +76,6 @@ export async function getHydratedQuizById(id: string) {
             title: quizRow.title,
             description: quizRow.description || '',
             difficulty: quizRow.difficulty || 'EASY',
-            type: quizRow.type,
             questions: []
         };
     }
@@ -121,9 +118,12 @@ export async function getHydratedQuizById(id: string) {
             })
             : [];
 
-        if (quizRow.type === 'sign_mcq') {
+        const questionType = q.type || 'image_mcq';
+
+        if (questionType === 'sign_mcq') {
             const question_image = correctGloss ? (correctGloss.imageUrl || `/glosses/${correctGloss.glossName}.jpg`) : '';
             return {
+                type: 'sign_mcq',
                 q_no: q.q_no,
                 question_image,
                 correct_id: Number(q.q_gloss_id),
@@ -136,6 +136,7 @@ export async function getHydratedQuizById(id: string) {
                 displayQuestionText = `Identify the correct sign for '${correctGloss.glossName}'`;
             }
             return {
+                type: 'image_mcq',
                 q_no: q.q_no,
                 q_text: displayQuestionText,
                 correct_id: Number(q.q_gloss_id),
@@ -149,7 +150,6 @@ export async function getHydratedQuizById(id: string) {
         title: quizRow.title,
         description: quizRow.description || '',
         difficulty: quizRow.difficulty || 'EASY',
-        type: quizRow.type,
         questions
     };
 }

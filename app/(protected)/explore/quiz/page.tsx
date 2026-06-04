@@ -15,7 +15,9 @@ type BaseQuiz = {
     title: string
     description: string
     difficulty: Difficulty
-    type: "image_mcq" | "sign_mcq"
+    content: {
+        questions: any[]
+    }
 }
 
 export default function QuizPage() {
@@ -81,7 +83,8 @@ export default function QuizPage() {
                                     diffLower === 'medium' ? 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20' : 
                                     'bg-red-500/10 text-red-700 hover:bg-red-500/20'
                                 
-                                const typeName = q.type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                                const questionCount = q.content?.questions?.length || 0
+                                const questionsLabel = `${questionCount} Question${questionCount === 1 ? "" : "s"}`
 
                                 return (
                                     <Card 
@@ -96,8 +99,8 @@ export default function QuizPage() {
                                             </Badge>
                                         </div>
                                         <p className="text-sm text-muted-foreground mb-6 flex-1">{q.description}</p>
-                                        <div className="flex items-center text-xs font-medium text-muted-foreground bg-muted/60 w-fit px-2.5 py-1 rounded-md">
-                                            {typeName}
+                                        <div className="flex items-center text-xs font-semibold text-brand-700 dark:text-brand-400 bg-brand-500/10 dark:bg-brand-500/5 w-fit px-2.5 py-1 rounded-md border border-brand-500/15">
+                                            {questionsLabel}
                                         </div>
                                     </Card>
                                 )

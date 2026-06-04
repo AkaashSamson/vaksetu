@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { PageHeader } from "@/components/shared/PageHeader"
 
+import { QuizQuestion } from "@/components/quizzes/types"
+import QuestionRenderer from "@/components/quizzes/QuestionRenderer"
+
 type Difficulty = "EASY" | "MEDIUM" | "HARD"
 
 type BaseQuiz = {
@@ -17,34 +20,18 @@ type BaseQuiz = {
     title: string
     description: string
     difficulty: Difficulty
-    type: "image_mcq" | "sign_mcq"
+    content?: {
+        questions: any[]
+    }
 }
 
-type ImageMCQQuestion = {
-    q_no: number
-    q_text: string
-    correct_id: number
-    options: { id: number; image_url?: string; name: string }[]
+type Quiz = {
+    id: string
+    title: string
+    description: string
+    difficulty: Difficulty
+    questions: QuizQuestion[]
 }
-
-type SignMCQQuestion = {
-    q_no: number
-    question_image: string
-    correct_id: number
-    options: { id: number; name: string }[]
-}
-
-type ImageMCQ = BaseQuiz & {
-    type: "image_mcq"
-    questions: ImageMCQQuestion[]
-}
-
-type SignMCQ = BaseQuiz & {
-    type: "sign_mcq"
-    questions: SignMCQQuestion[]
-}
-
-type Quiz = ImageMCQ | SignMCQ
 
 /**
  * Adjust this ONE function to match how your files are named in /public/glosses.
@@ -379,117 +366,44 @@ export default function QuizPage() {
                         <div className="mt-1 text-right text-xs text-muted-foreground">{progressPct}%</div>
                     </div>
 
-                    <Card className="mt-4 p-5">
-                        {quiz.type === "image_mcq" ? (
-                            (() => {
-                                const current = quiz.questions[questionIndex]
-                                const selected = answers[current.q_no]
+                    <Card className="mt-4 p-5 animate-in fade-in duration-300 bg-card/65 backdrop-blur-md border border-slate-500/10">
+                        {(() => {
+                            const current = quiz.questions[questionIndex]
+                            const selected = answers[current.q_no]
 
-                                return (
-                                    <>
-                                        <div className="text-sm text-muted-foreground">Question {current.q_no}</div>
-                                        <div className="mt-1 text-lg font-semibold">{current.q_text}</div>
+                            return (
+                                <QuestionRenderer
+                                    question={current}
+                                    selectedOptionId={selected}
+                                    onSelectOption={(optionId) => selectOption(current.q_no, optionId)}
+                                    isPriority={questionIndex === 0}
+                                />
+                            )
+                        })()}
 
-                                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                                            {current.options.map((opt, optIndex) => {
-                                                const isSelected = selected === opt.id
-                                                const letter = optionLetter(optIndex)
-
-                                                // If backend provides image_url later, it will use that.
-                                                // Otherwise, we derive it from gloss name based on /public/glosses.
-                                                const src = opt.image_url ?? glossImageUrlByName(opt.name)
-
-                                                return (
-                                                    <button
-                                                        key={opt.id}
-                                                        type="button"
-                                                        onClick={() => selectOption(current.q_no, opt.id)}
-                                                        className={[
-                                                            "overflow-hidden rounded-xl border text-left transition",
-                                                            isSelected
-                                                                ? "border-brand-500 ring-4 ring-brand-400/15 px-2.5"
-                                                                : "hover:border-brand-400/60 hover:ring-4 hover:ring-brand-400/10",
-                                                        ].join(" ")}
-                                                    >
-                                                        <div className="relative aspect-4/3 w-full bg-gray-900">
-                                                            <Image
-                                                                src={src}
-                                                                alt={`Option ${letter}`}
-                                                                fill
-                                                                className="object-contain"
-                                                                sizes="(min-width: 640px) 50vw, 100vw"
-                                                            />
-                                                            <div className="absolute left-3 top-3 rounded-full bg-brand-600 px-2.5 py-1 text-xs font-semibold text-white">
-                                                                {letter}
-                                                            </div>
-                                                        </div>
-                                                    </button>
-                                                )
-                                            })}
-                                        </div>
-                                    </>
-                                )
-                            })()
-                        ) : (
-                            (() => {
-                                const current = quiz.questions[questionIndex]
-                                const selected = answers[current.q_no]
-
-                                return (
-                                    <>
-                                        <div className="text-sm text-muted-foreground">Question {current.q_no}</div>
-
-                                        <div className="mt-4 overflow-hidden rounded-xl border border-brand-500/30 bg-muted">
-                                            <div className="relative aspect-video w-full bg-gray-900">
-                                                <Image
-                                                    src={current.question_image}
-                                                    alt={`Question ${current.q_no}`}
-                                                    fill
-                                                    className="object-contain"
-                                                    sizes="100vw"
-                                                    priority={questionIndex === 0}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-4 grid gap-3">
-                                            {current.options.map((opt) => {
-                                                const isSelected = selected === opt.id
-                                                return (
-                                                    <button
-                                                        key={opt.id}
-                                                        type="button"
-                                                        onClick={() => selectOption(current.q_no, opt.id)}
-                                                        className={[
-                                                            "w-full rounded-lg border p-4 text-left transition",
-                                                            isSelected
-                                                                ? "border-brand-500 bg-brand-500/10"
-                                                                : "hover:border-brand-400/60 hover:bg-muted",
-                                                        ].join(" ")}
-                                                    >
-                                                        <div className="flex items-center justify-between gap-3">
-                                                            <div className="text-base font-medium">{opt.name}</div>
-                                                        </div>
-                                                    </button>
-                                                )
-                                            })}
-                                        </div>
-                                    </>
-                                )
-                            })()
-                        )}
-
-                        <div className="mt-6 flex items-center justify-between gap-3">
-                            <Button variant="secondary" onClick={prevQuestion} disabled={questionIndex === 0}>
+                        <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4">
+                            <Button 
+                                variant="secondary" 
+                                onClick={prevQuestion} 
+                                disabled={questionIndex === 0}
+                                className="rounded-xl border border-input cursor-pointer"
+                            >
                                 Back
                             </Button>
 
                             <div className="flex items-center gap-2">
-                                <Button variant="ghost" onClick={resetQuizAttempt}>
+                                <Button 
+                                    variant="ghost" 
+                                    onClick={resetQuizAttempt}
+                                    className="rounded-xl cursor-pointer hover:bg-muted"
+                                >
                                     Reset
                                 </Button>
 
-                                <Button onClick={nextQuestion} className="bg-brand-600 hover:bg-brand-700">
+                                <Button 
+                                    onClick={nextQuestion} 
+                                    className="bg-brand-600 hover:bg-brand-700 text-white rounded-xl shadow-sm px-5 cursor-pointer font-medium"
+                                >
                                     {isLastQuestion ? "Finish" : "Next"}
                                 </Button>
                             </div>
