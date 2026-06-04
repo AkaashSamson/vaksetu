@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Languages, Mic, Camera } from "lucide-react";
 import { CameraPreview } from "@/components/translation/camera-preview";
 import { AudioRecorderCard } from "@/components/translation/microphone-input";
@@ -27,11 +26,7 @@ export default function Page() {
                 <div className="flex w-full items-center justify-between gap-2 px-4">
                     {/* Left side */}
                     <div className="flex items-center gap-2">
-                        <SidebarTrigger className="-ml-1" />
-                        <Separator
-                            orientation="vertical"
-                            className="mr-2 data-[orientation=vertical]:h-4"
-                        />
+                        <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
                         <Languages className="size-4 text-muted-foreground" />
                         <h1 className="text-lg font-semibold leading-none">
                             {isSignToText ? "Translate (Sign → Text/Speech)" : "Translate (Speech → Sign)"}
@@ -40,9 +35,7 @@ export default function Page() {
 
                     {/* Right side toggle */}
                     <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground hidden sm:inline">
-              Mode
-            </span>
+                        <span className="text-xs text-muted-foreground hidden sm:inline">Mode</span>
 
                         <div className="flex items-center rounded-lg border bg-background p-1">
                             <button
@@ -50,9 +43,7 @@ export default function Page() {
                                 onClick={() => handleModeSwitch("sign-to-text")}
                                 className={[
                                     "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition",
-                                    isSignToText
-                                        ? "bg-muted text-foreground"
-                                        : "text-muted-foreground hover:text-foreground",
+                                    isSignToText ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground",
                                 ].join(" ")}
                                 aria-pressed={isSignToText}
                             >
@@ -65,9 +56,7 @@ export default function Page() {
                                 onClick={() => handleModeSwitch("speech-to-sign")}
                                 className={[
                                     "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition",
-                                    !isSignToText
-                                        ? "bg-muted text-foreground"
-                                        : "text-muted-foreground hover:text-foreground",
+                                    !isSignToText ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground",
                                 ].join(" ")}
                                 aria-pressed={!isSignToText}
                             >
@@ -79,39 +68,41 @@ export default function Page() {
                 </div>
             </header>
 
-            <div className="flex flex-1 flex-col p-4 pt-0">
+            <div className="flex flex-1 flex-col px-4 pb-4 pt-6">
                 <div className="mx-auto w-full max-w-6xl">
-                    <div className="grid gap-4 lg:grid-cols-2">
+                    <div className="grid gap-6 lg:grid-cols-2">
                         {/* Left card: Camera OR Microphone */}
-                        <section className="rounded-xl border bg-card p-4 shadow-sm">
-                            <header className="mb-3 flex items-center justify-between">
-                                <h2 className="text-sm font-semibold text-foreground">
+                        <section className="rounded-2xl border border-border/70 bg-background p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+                            <header className="mb-4 flex items-center justify-between border-b border-border/60 pb-3">
+                                <h2 className="text-sm font-semibold tracking-tight text-foreground">
                                     {isSignToText ? "Camera" : "Microphone"}
                                 </h2>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-xs uppercase tracking-wide text-muted-foreground">
                   {isSignToText ? "Center your hand in frame" : "Speak clearly into your mic"}
                 </span>
                             </header>
 
-                            {isSignToText ? (
-                                <CameraPreview />
-                            ) : (
-                                <AudioRecorderCard onRecordingComplete={setSpeechText} />
-                            )}
+                            <div className="min-h-65 flex items-center justify-center">
+                                {isSignToText ? (
+                                    <CameraPreview />
+                                ) : (
+                                    <AudioRecorderCard onRecordingComplete={setSpeechText} />
+                                )}
+                            </div>
                         </section>
 
                         {/* Right card: Text result OR Avatar */}
-                        <section className="rounded-xl border bg-card p-4 shadow-sm">
-                            <header className="mb-3 flex items-center justify-between gap-3">
-                                <h2 className="text-sm font-semibold text-foreground">
+                        <section className="rounded-2xl border border-border/70 bg-background p-5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+                            <header className="mb-4 flex items-center justify-between gap-3 border-b border-border/60 pb-3">
+                                <h2 className="text-sm font-semibold tracking-tight text-foreground">
                                     {isSignToText ? "Translated Result" : "Sign Avatar"}
                                 </h2>
 
                                 {isSignToText && (
-                                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
                                         Language
                                         <select
-                                            className="h-9 rounded-md border bg-background px-3 text-sm text-foreground"
+                                            className="h-9 rounded-md border border-border/70 bg-background px-3 text-sm text-foreground"
                                             defaultValue="en"
                                         >
                                             <option value="en">English</option>
@@ -125,13 +116,14 @@ export default function Page() {
                             </header>
 
                             {isSignToText ? (
-                                <div className="min-h-60 rounded-lg bg-muted/40 p-4">
-                                    <p className="text-sm text-muted-foreground">
-                                        Waiting for translation…
-                                    </p>
+                                <div className="min-h-55 rounded-xl border border-border/60 bg-muted/20 p-4 flex items-start">
+                                    <div className="w-full">
+                                        <p className="text-sm text-muted-foreground">Waiting for translation…</p>
+                                        {/* When translation is available, you'd render the translated text here with clear hierarchy. */}
+                                    </div>
                                 </div>
                             ) : (
-                                <div className="space-y-3 h-full pb-4">
+                                <div className="flex h-full flex-col justify-between gap-4">
                                     <GlossVideoPlayer englishText={speechText} />
                                 </div>
                             )}

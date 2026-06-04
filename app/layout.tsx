@@ -37,7 +37,7 @@ export default async function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
             <AppSidebar user={userProfile} />
             <SidebarInset>{children}</SidebarInset>
         </SidebarProvider>

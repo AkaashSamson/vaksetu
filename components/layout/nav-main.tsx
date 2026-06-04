@@ -1,35 +1,23 @@
 "use client"
 
-import { ChevronRight, type LucideIcon } from "lucide-react"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+import { type LucideIcon } from "lucide-react"
+
 import {
   SidebarGroup,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
-
 export function NavMain({
-  items,
-}: {
+                          items,
+                        }: {
   items: {
     title: string
     url: string
     icon?: LucideIcon
-    isActive?: boolean
-    items?: {
-      title: string
-      url: string
-    }[]
   }[]
 }) {
   const pathname = usePathname()
@@ -44,38 +32,14 @@ export function NavMain({
                     : pathname === item.url || pathname.startsWith(item.url + "/")
 
             return (
-                <Collapsible
-                    key={item.title}
-                    asChild
-                    defaultOpen={isActive}
-                    className="group/collapsible"
-                >
-                  <SidebarMenuItem>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton asChild tooltip={item.title}>
-                        <a href={item.url} className="flex items-center gap-2 w-full">
-                          {item.icon && <item.icon className="text-brand-800" />}
-                          <span>{item.title}</span>
-                          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                        </a>
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {item.items?.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild>
-                              <a href={subItem.url} className="w-full">
-                                <span>{subItem.title}</span>
-                              </a>
-                            </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
-                </Collapsible>
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
+                    <Link href={item.url} className="flex items-center justify-center w-full">
+                      {item.icon && <item.icon className="text-brand-800" />}
+                      <span className="sr-only">{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
             )
           })}
         </SidebarMenu>
