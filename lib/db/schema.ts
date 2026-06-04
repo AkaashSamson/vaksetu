@@ -6,7 +6,7 @@ export const users = authSchema.table('users', {
     id: uuid('id').primaryKey(),
 });
 
-export const quizType = pgEnum("quiz_type", ['image_mcq', 'sign_mcq', 'sign_live'])
+
 
 
 export const glosses = pgTable("glosses", {
@@ -36,7 +36,6 @@ export const quiz = pgTable("quiz", {
     createdBy: uuid("created_by"),
     content: jsonb().notNull(),
     createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow(),
-    type: quizType().default('image_mcq').notNull(),
 }, (table) => [
     foreignKey({
         columns: [table.createdBy],

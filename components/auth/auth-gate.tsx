@@ -10,25 +10,37 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     const supabase = createClient()
 
     React.useEffect(() => {
+        console.log("AuthGate: checkAuth started")
         async function checkAuth() {
-            const { data: { user } } = await supabase.auth.getUser()
-            setAuthed(!!user)
-            setChecked(true)
+            try {
+                console.log("AuthGate: calling supabase.auth.getUser()...")
+                const result = await supabase.auth.getUser()
+                console.log("AuthGate: supabase.auth.getUser() completed:", result)
+                const user = result.data?.user
+                setAuthed(!!user)
+                setChecked(true)
+            } catch (err) {
+                console.error("AuthGate: Error in checkAuth:", err)
+                setChecked(true)
+            }
         }
         checkAuth()
         
-        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log("AuthGate: registering onAuthStateChange...")
+        const { data: authListener } = supabase.auth.onAuthStateChange((event: any, session: any) => {
+            console.log("AuthGate: onAuthStateChange triggered:", event, session?.user)
             setAuthed(!!session?.user)
         })
 
         return () => {
+            console.log("AuthGate: unsubscribing authListener...")
             authListener.subscription.unsubscribe()
         }
     }, [supabase])
 
     return (
         <>
-            {children}
+            {authed ? children : null}
             {checked && !authed ? <LoginBlocker onAuthed={() => setAuthed(true)} /> : null}
         </>
     )
