@@ -179,14 +179,26 @@ export default function SettingsPage() {
                                     />
                                 </div>
 
-                                <Button 
-                                    type="submit" 
-                                    className="bg-brand-800 hover:bg-brand-900 text-white" 
+                                <Button
+                                    type="submit"
+                                    variant="outline"
                                     disabled={saving}
-                                >
+                                    className={[
+                                    "bg-white text-black",
+                                    "border-4 border-black",
+                                    "shadow-[-5px_5px_0_0_rgba(22,163,74,0.45)]",
+                                    "transition-all duration-200 ease-out",
+                                    "hover:-translate-x-1 hover:translate-y-1",
+                                    "hover:shadow-[-3px_3px_0_0_rgba(22,163,74,0.35)]",
+                                    "active:translate-x-0 active:translate-y-0",
+                                    "active:shadow-[-2px_2px_0_0_rgba(22,163,74,0.28)]",
+                                    "disabled:opacity-60 disabled:cursor-not-allowed",
+                                ].join(" ")}
+                                    >
                                     {saving ? "Saving changes..." : "Save Changes"}
-                                </Button>
-                            </form>
+                            </Button>
+
+                        </form>
                         </CardContent>
                     </Card>
                 </div>

@@ -35,7 +35,7 @@ export function NavMain({
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
                     <Link href={item.url} className="flex items-center justify-center w-full">
-                      {item.icon && <item.icon className="text-brand-800" />}
+                      {item.icon && <item.icon className="text-current" />}
                       <span className="sr-only">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
