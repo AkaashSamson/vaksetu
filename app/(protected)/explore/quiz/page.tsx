@@ -96,7 +96,7 @@ export default function QuizPage() {
                                             "shadow-[-12px_12px_0_0_rgba(22,163,74,0.55)]",
                                             "transition-all duration-200 ease-out",
                                             "hover:-translate-x-3 hover:translate-y-3",
-                                            "hover:shadow-[-6px_6px_0_0_rgba(22,163,74,0.35)]",
+                                            "hover:shadow-[0px_0px_0_0_rgba(22,163,74,0.35)]",
                                             "active:translate-x-0 active:translate-y-0",
                                             "active:shadow-[-4px_4px_0_0_rgba(22,163,74,0.28)]",
                                         ].join(" ")}
