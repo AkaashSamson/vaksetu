@@ -184,12 +184,12 @@ export default function SettingsPage() {
                                     variant="outline"
                                     disabled={saving}
                                     className={[
-                                    "bg-white text-black",
-                                    "border-4 border-black",
+                                    "cursor-pointer bg-white text-black",
+                                    "border-2 border-black",
                                     "shadow-[-5px_5px_0_0_rgba(22,163,74,0.45)]",
                                     "transition-all duration-200 ease-out",
                                     "hover:-translate-x-1 hover:translate-y-1",
-                                    "hover:shadow-[-3px_3px_0_0_rgba(22,163,74,0.35)]",
+                                    "hover:shadow-[-0px_0px_0_0_rgba(22,163,74,0.35)]",
                                     "active:translate-x-0 active:translate-y-0",
                                     "active:shadow-[-2px_2px_0_0_rgba(22,163,74,0.28)]",
                                     "disabled:opacity-60 disabled:cursor-not-allowed",

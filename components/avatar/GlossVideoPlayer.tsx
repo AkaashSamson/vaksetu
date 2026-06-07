@@ -17,8 +17,11 @@ export function GlossVideoPlayer({ englishText }: Props) {
 
     useEffect(() => {
         if (!englishText) {
+            // No text → stop & clear
             setGlossList([]);
             setCurrentIndex(0);
+            setIsPlaying(false);
+            setIsSpellingFallback(false);
             return;
         }
 
@@ -28,6 +31,10 @@ export function GlossVideoPlayer({ englishText }: Props) {
                 const glosses = await fetchGlossesFromText(englishText);
                 setGlossList(glosses);
                 setCurrentIndex(0);
+                // Ensure we ALWAYS start playing when a new translation arrives:
+                setIsPlaying(true);
+                // If we previously fell back to spelling, clear that for the new mapping
+                setIsSpellingFallback(false);
             } catch (err) {
                 console.error("Failed to map text to glosses", err);
             } finally {
@@ -122,7 +129,7 @@ export function GlossVideoPlayer({ englishText }: Props) {
         <div className="flex flex-col items-center overflow-hidden rounded-lg bg-card border border-brand-600/20 pb-2 h-full min-h-[300px] w-full shadow-sm">
             {/* Status Header */}
             <div className="w-full bg-brand-50/50 dark:bg-brand-900/10 px-4 py-1.5 flex items-center justify-between text-xs text-muted-foreground border-b border-brand-600/10">
-            <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
                     <button
                         onClick={() => setIsPlaying(!isPlaying)}
                         className="p-1.5 rounded-full transition-colors flex items-center justify-center border border-brand-200 dark:border-brand-800 bg-white dark:bg-zinc-900 hover:bg-brand-50 dark:hover:bg-brand-900/40 text-brand-700 dark:text-brand-400 shadow-sm"
@@ -161,7 +168,7 @@ export function GlossVideoPlayer({ englishText }: Props) {
 
             {/* Reduced gap between video and label: mt-2 and smaller vertical padding */}
             <div className="mt-1 px-4 py-1 text-center bg-brand-100 dark:bg-brand-900/30 rounded-full border border-brand-200 dark:border-brand-800/50 mx-auto shadow-sm">
-            <p className="text-sm font-semibold tracking-wide text-brand-800 dark:text-brand-300 min-w-16">
+                <p className="text-sm font-semibold tracking-wide text-brand-800 dark:text-brand-300 min-w-16">
                     {isGap ? "..." : (currentGloss || "")}
                 </p>
             </div>

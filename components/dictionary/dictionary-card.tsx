@@ -1,16 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState } from "react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 export type DictionaryEntry = {
     id: string;
     query: string;
     translation: string;
     tags?: string[];
-
-    // media (public/ paths are referenced with leading "/")
-    signImageUrl?: string; // e.g. "/Glosses/1.jpg"
-    signVideoUrl?: string; // e.g. "/Glosses/Videos/assets/After.mp4"
+    signImageUrl?: string;
+    signVideoUrl?: string;
 };
 
 type DictionaryCardProps = {
@@ -18,76 +22,173 @@ type DictionaryCardProps = {
     onTagClick?: (tag: string) => void;
 };
 
-function DictionaryMedia({ entry }: { entry: DictionaryEntry }) {
-    // Prefer video if available
-    if (entry.signVideoUrl) {
-        return (
-            <video
-                className="h-full w-full object-cover"
-                src={entry.signVideoUrl}
-                controls
-                playsInline
-                preload="metadata"
-            />
-        );
-    }
+export function DictionaryCard({
+                                   entry,
+                               }: DictionaryCardProps) {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [open, setOpen] = useState(false);
 
-    // Otherwise show image if available
-    if (entry.signImageUrl) {
-        // eslint-disable-next-line @next/next/no-img-element
-        return (
-            <img
-                src={entry.signImageUrl}
-                alt={`Sign for ${entry.translation}`}
-                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-                loading="lazy"
-            />
-        );
-    }
+    const handleMouseEnter = async () => {
+        if (!videoRef.current) return;
 
-    // Fallback
+        try {
+            videoRef.current.currentTime = 0;
+            await videoRef.current.play();
+        } catch {}
+    };
+
+    const handleMouseLeave = () => {
+        if (!videoRef.current) return;
+
+        videoRef.current.pause();
+        videoRef.current.currentTime = 0;
+    };
+
     return (
-        <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">
-            No media
-        </div>
-    );
-}
-
-export function DictionaryCard({ entry, onTagClick }: DictionaryCardProps) {
-    return (
-        <article className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition hover:border-brand-500 hover:shadow-md">
-            <div className="relative h-44 w-full overflow-hidden bg-muted">
-                <DictionaryMedia entry={entry} />
-            </div>
-
-            <div className="space-y-3 p-4">
-                <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                        <p className="truncate text-xs text-muted-foreground">{entry.query}</p>
-                        <h3 className="truncate text-base font-semibold">
-                            {entry.translation}
-                        </h3>
-                    </div>
+        <>
+            <article
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onClick={() => setOpen(true)}
+                className="
+                    group
+                    relative
+                    h-72
+                    overflow-hidden
+                    rounded-3xl
+                    border
+                    border-border
+                    cursor-pointer
+                    bg-black
+                    shadow-sm
+                    transition-all
+                    duration-300
+                    hover:-translate-y-1
+                    hover:shadow-xl
+                "
+            >
+                {/* Media */}
+                <div className="absolute inset-0">
+                    {entry.signVideoUrl ? (
+                        <video
+                            ref={videoRef}
+                            src={entry.signVideoUrl}
+                            muted
+                            playsInline
+                            preload="metadata"
+                            className="
+                                h-full
+                                w-full
+                                object-cover
+                                transition-transform
+                                duration-500
+                                group-hover:scale-105
+                            "
+                        />
+                    ) : entry.signImageUrl ? (
+                        <img
+                            src={entry.signImageUrl}
+                            alt={entry.translation}
+                            className="
+                                h-full
+                                w-full
+                                object-cover
+                                transition-transform
+                                duration-500
+                                group-hover:scale-105
+                            "
+                        />
+                    ) : (
+                        <div className="grid h-full place-items-center bg-muted text-muted-foreground">
+                            No media
+                        </div>
+                    )}
                 </div>
 
-                {entry.tags && entry.tags.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                        {entry.tags.map((t) => (
-                            <button
-                                key={t}
-                                type="button"
-                                onClick={() => onTagClick?.(t)}
-                                className="rounded-full border border-brand-500/25 bg-brand-500/10 px-2.5 py-1 text-[11px] text-brand-700 hover:bg-brand-500/15 dark:text-brand-400"
-                                title="Filter by this tag"
-                            >
-                                {t}
-                            </button>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-xs text-muted-foreground">No tags</p>
-                )}
-            </div>
-        </article>
+                {/* Gradient Overlay */}
+                <div
+                    className="
+                        absolute
+                        inset-0
+                        bg-gradient-to-t
+                        from-black/80
+                        via-black/20
+                        to-transparent
+                    "
+                />
+
+                {/* Translation */}
+                <div
+                    className="
+                        absolute
+                        bottom-0
+                        left-0
+                        right-0
+                        p-5
+                        transition-opacity
+                        duration-300
+                        group-hover:opacity-0
+                    "
+                >
+                    <h3 className="text-xl font-bold text-white">
+                        {entry.translation}
+                    </h3>
+
+                    <p className="text-sm text-white/70">
+                        {entry.query}
+                    </p>
+                </div>
+            </article>
+
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                        <DialogTitle>
+                            {entry.translation}
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    {entry.signVideoUrl ? (
+                        <video
+                            src={entry.signVideoUrl}
+                            controls
+                            autoPlay
+                            className="
+                                w-full
+                                rounded-xl
+                            "
+                        />
+                    ) : entry.signImageUrl ? (
+                        <img
+                            src={entry.signImageUrl}
+                            alt={entry.translation}
+                            className="
+                                w-full
+                                rounded-xl
+                            "
+                        />
+                    ) : null}
+
+                    {entry.tags?.length ? (
+                        <div className="flex flex-wrap gap-2">
+                            {entry.tags.map((tag) => (
+                                <span
+                                    key={tag}
+                                    className="
+                                        rounded-full
+                                        border
+                                        px-3
+                                        py-1
+                                        text-xs
+                                    "
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    ) : null}
+                </DialogContent>
+            </Dialog>
+        </>
     );
 }

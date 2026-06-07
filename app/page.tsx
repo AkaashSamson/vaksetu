@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Separator } from "@/components/ui/separator";
-import { 
-    Languages, 
-    Mic, 
-    Camera, 
-    Play, 
-    Square, 
-    Copy, 
-    Volume2, 
-    Check, 
-    Loader2, 
-    Sparkles 
+import {
+    Languages,
+    Mic,
+    Camera,
+    Play,
+    Square,
+    Copy,
+    Volume2,
+    Check,
+    Loader2,
+    Sparkles
 } from "lucide-react";
 import { CameraPreview } from "@/components/translation/camera-preview";
 import { AudioRecorderCard } from "@/components/translation/microphone-input";
@@ -241,7 +241,7 @@ export default function Page() {
                             <div className="flex flex-col justify-between">
                                 {isSignToText ? (
                                     <>
-                                        <CameraPreview 
+                                        <CameraPreview
                                             isActive={isTranslatingActive}
                                             onTranslationStateChange={(state) => {
                                                 setTranslationState(state);
@@ -263,9 +263,9 @@ export default function Page() {
                                                     onClick={toggleTranslation}
                                                     className={[
                                                         "w-full rounded-xl py-5 font-semibold text-sm transition shadow-sm",
-                                                        isTranslatingActive 
-                                                            ? "bg-red-600 hover:bg-red-700 text-white animate-pulse" 
-                                                            : "bg-brand-600 hover:bg-brand-700 text-white"
+                                                        isTranslatingActive
+                                                            ? "bg-red-600 hover:bg-red-700 text-white animate-pulse"
+                                                            : "bg-green-400 hover:bg-brand-700 text-white"
                                                     ].join(" ")}
                                                 >
                                                     {isTranslatingActive ? (
@@ -292,7 +292,7 @@ export default function Page() {
                                                             {translationState}
                                                         </span>
                                                     </div>
-                                                    
+
                                                     <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none min-h-8">
                                                         {detectedGlosses.length === 0 ? (
                                                             <span className="text-xs text-muted-foreground italic">Performing gesture tracking...</span>
@@ -455,7 +455,7 @@ export default function Page() {
                                     )}
                                 </div>
                             ) : (
-                                <div className="flex h-full flex-col justify-between gap-4">
+                                <div className="flex h-full flex-col justify-between gap-4" style={{ maxHeight: "340px" }}>
                                     <GlossVideoPlayer englishText={speechText} />
                                 </div>
                             )}
