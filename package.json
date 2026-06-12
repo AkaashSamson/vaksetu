@@ -12,6 +12,9 @@
     "db:replicate": "npx supabase db dump --local --data-only -f supabase/local_data.sql && npx supabase db query --linked -f supabase/clear_remote.sql && npx supabase db query --linked -f supabase/local_data.sql",
     "db:seed-remote": "npx supabase db query --linked -f supabase/seed.sql"
   },
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/modifiers": "^9.0.0",
