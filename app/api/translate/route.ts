@@ -62,7 +62,7 @@ export async function POST(request: Request) {
             const payload = {
                 inputs: [text.trim()],
                 target_language_code: targetLanguage,
-                speaker: 'shreya', // Polyglot voice supporting all 11 Indian languages
+                speaker: 'shubh', // Polyglot voice supporting all 11 Indian languages
                 model: 'bulbul:v3'
             };
 
