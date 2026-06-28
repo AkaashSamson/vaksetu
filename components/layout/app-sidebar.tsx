@@ -29,7 +29,7 @@ const data = {
   navMain: [
     {
       title: "Translate",
-      url: "/",
+      url: "/home",
       icon: Languages,
     },
     {
