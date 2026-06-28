@@ -107,7 +107,7 @@ export function GlossVideoPlayer({ englishText }: Props) {
 
     if (!englishText) {
         return (
-            <div className="flex h-full min-h-60 flex-col items-center justify-center rounded-lg bg-muted/40 p-4 border border-dashed text-muted-foreground text-sm">
+            <div className="flex h-full min-h-[340px] flex-col items-center justify-center rounded-lg bg-muted/40 p-4 border border-dashed text-muted-foreground text-sm">
                 Waiting for speech...
             </div>
         );
@@ -115,7 +115,7 @@ export function GlossVideoPlayer({ englishText }: Props) {
 
     if (isLoading) {
         return (
-            <div className="flex h-full min-h-60 flex-col items-center justify-center rounded-lg bg-muted/20 p-4 border text-muted-foreground space-y-3">
+            <div className="flex h-full min-h-[340px] flex-col items-center justify-center rounded-lg bg-muted/20 p-4 border text-muted-foreground space-y-3">
                 <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
                 <p className="text-sm">Mapping Glosses directly securely...</p>
             </div>
@@ -126,7 +126,7 @@ export function GlossVideoPlayer({ englishText }: Props) {
     const isGap = currentGloss === "__GAP__";
 
     return (
-        <div className="flex flex-col items-center overflow-hidden rounded-lg bg-card border border-brand-600/20 pb-2 h-full min-h-[300px] w-full shadow-sm">
+        <div className="flex flex-col items-center overflow-hidden rounded-lg bg-card border border-brand-600/20 pb-2 h-full w-full shadow-sm">
             {/* Status Header */}
             <div className="w-full bg-brand-50/50 dark:bg-brand-900/10 px-4 py-1.5 flex items-center justify-between text-xs text-muted-foreground border-b border-brand-600/10">
                 <div className="flex items-center gap-3">
@@ -145,7 +145,7 @@ export function GlossVideoPlayer({ englishText }: Props) {
             </div>
 
             {/* Video Player Frame */}
-            <div className="flex flex-col items-center justify-start pt-2 flex-1 w-full bg-muted/5 min-h-[250px] relative">
+            <div className="flex flex-col items-center justify-center w-full h-[340px] bg-muted/5 relative overflow-hidden">
                 {isGap ? (
                     <div className="animate-pulse text-muted-foreground tracking-wider text-sm font-mono flex items-center gap-2">
                         <span>[ WORD BREAK ]</span>
