@@ -1,16 +1,23 @@
 /**
- * Placeholder logic mimicking your upcoming Python FastAPI backend.
- * Wait for backend deployment to replace this function body with an actual HTTP fetch request.
+ * Fetch glosses from input English text.
+ * Routes either to the internal Next.js API route (/api/gloss) or the external Python FastAPI backend
+ * based on the NEXT_PUBLIC_TEXT_TO_GLOSS_PROVIDER env variable.
  */
 export async function fetchGlossesFromText(englishText: string): Promise<string[]> {
     // Basic defensive checks
     if (!englishText || typeof englishText !== 'string') return [];
 
+    const provider = process.env.NEXT_PUBLIC_TEXT_TO_GLOSS_PROVIDER || 'groq';
+
     try {
-        const url = process.env.NEXT_PUBLIC_GLOSS_API_URL || 'http://127.0.0.1:8000/convert-text-to-gloss';
+        // If provider is set to 'python', send request directly to the external Python FastAPI server.
+        // Otherwise, send to our internal Next.js route (/api/gloss) which resolves to Groq or local Ollama.
+        const url = provider === 'python'
+            ? (process.env.NEXT_PUBLIC_GLOSS_API_URL || 'http://127.0.0.1:8000/convert-text-to-gloss')
+            : '/api/gloss';
         
         const response = await fetch(url, {
-            method: 'POST', // Assuming standard JSON Body mapping for the FastAPI endpoint
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -23,7 +30,6 @@ export async function fetchGlossesFromText(englishText: string): Promise<string[
         
         const data = await response.json();
         
-        // The endpoint strictly returns { "glosses": ["hello", "friend"] }
         if (data.glosses && Array.isArray(data.glosses)) {
             // Guarantee .mp4 local mapping case parity natively
             return data.glosses.map((word: string) => word.toUpperCase());
@@ -31,7 +37,7 @@ export async function fetchGlossesFromText(englishText: string): Promise<string[
         
         return [];
     } catch (err) {
-        console.warn("FastAPI gloss mapping failed or endpoint is inactive, falling back to local manual heuristic parser:", err);
+        console.warn(`Gloss mapping failed with provider '${provider}', falling back to local manual heuristic parser:`, err);
         // Fallback robust logic safely defaults back to naive word splitting
         const washedText = englishText.replace(/[^\w\s]|_/g, "").trim().toUpperCase();
         return washedText.split(/\s+/).filter(w => w.length > 0);
