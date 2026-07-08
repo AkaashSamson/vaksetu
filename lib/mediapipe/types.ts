@@ -9,6 +9,7 @@ export type RawFrameLandmarks = {
     left_hand: Landmark[] | null;
     right_hand: Landmark[] | null;
     face: Landmark[] | null;
+    pose?: Landmark[] | null;
 };
 
 // WebSocket Payload Types (Client -> Server)

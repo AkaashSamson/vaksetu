@@ -1,4 +1,4 @@
-import { FilesetResolver, HandLandmarker, FaceLandmarker } from "@mediapipe/tasks-vision";
+import { FilesetResolver, HandLandmarker, FaceLandmarker, PoseLandmarker } from "@mediapipe/tasks-vision";
 import { RawFrameLandmarks, Landmark } from "./types";
 
 // Suppress WebAssembly C++ TensorFlow Lite internal delegate info logs from triggering Next.js dev overlay
@@ -30,17 +30,40 @@ if (typeof window !== "undefined" && !(window as any).__mediapipe_console_patche
 export class MediaPipeManager {
     private handLandmarker: HandLandmarker | null = null;
     private faceLandmarker: FaceLandmarker | null = null;
+    private poseLandmarker: PoseLandmarker | null = null;
     private isInitializing = false;
     private isReady = false;
     private lastTimestamp = -1;
 
-    /**
-     * Initializes the MediaPipe vision tasks using standard WASM assets from CDN.
-     */
-    public async initialize(): Promise<void> {
-        if (this.isReady || this.isInitializing) return;
-        this.isInitializing = true;
+    public async initialize(options?: { includePose?: boolean }): Promise<void> {
+        if (this.isInitializing) return;
 
+        // If vision is already ready but we need pose and don't have it yet:
+        if (this.isReady) {
+            if (options?.includePose && !this.poseLandmarker) {
+                this.isInitializing = true;
+                try {
+                    const vision = await FilesetResolver.forVisionTasks(
+                        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+                    );
+                    this.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+                        baseOptions: {
+                            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+                        },
+                        runningMode: "VIDEO"
+                    });
+                    console.log("[MediaPipeManager] Dynamically loaded Pose Landmarker.");
+                } catch (error) {
+                    console.error("[MediaPipeManager] Failed to load Pose Landmarker:", error);
+                    throw error;
+                } finally {
+                    this.isInitializing = false;
+                }
+            }
+            return;
+        }
+
+        this.isInitializing = true;
         try {
             const vision = await FilesetResolver.forVisionTasks(
                 "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
@@ -64,9 +87,21 @@ export class MediaPipeManager {
                 numFaces: 1
             });
 
+            // Dynamically load Pose Landmarker if requested during startup
+            if (options?.includePose) {
+                this.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
+                    baseOptions: {
+                        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
+                    },
+                    runningMode: "VIDEO"
+                });
+                console.log("[MediaPipeManager] Successfully initialized Hand, Face & Pose Landmarkers.");
+            } else {
+                console.log("[MediaPipeManager] Successfully initialized Hand & Face Landmarkers.");
+            }
+
             this.isReady = true;
             this.lastTimestamp = -1;
-            console.log("[MediaPipeManager] Successfully initialized Hand & Face Landmarkers.");
         } catch (error) {
             console.error("[MediaPipeManager] Failed to initialize MediaPipe tasks:", error);
             throw error;
@@ -84,12 +119,12 @@ export class MediaPipeManager {
      */
     public processVideoFrame(video: HTMLVideoElement, timestamp: number): RawFrameLandmarks {
         if (!this.isReady || !this.handLandmarker || !this.faceLandmarker) {
-            return { left_hand: null, right_hand: null, face: null };
+            return { left_hand: null, right_hand: null, face: null, pose: null };
         }
 
         // Ensure video is active and has decoded frame data ready
         if (video.readyState < 2 || video.paused || video.ended || video.videoWidth === 0 || video.videoHeight === 0) {
-            return { left_hand: null, right_hand: null, face: null };
+            return { left_hand: null, right_hand: null, face: null, pose: null };
         }
 
         // Ensure timestamp is strictly increasing integer milliseconds for MediaPipe VIDEO mode
@@ -100,6 +135,7 @@ export class MediaPipeManager {
         let leftHand: Landmark[] | null = null;
         let rightHand: Landmark[] | null = null;
         let faceLandmarks: Landmark[] | null = null;
+        let poseLandmarks: Landmark[] | null = null;
 
         // 1. Process Hand Landmarks
         try {
@@ -133,10 +169,23 @@ export class MediaPipeManager {
             // Suppress face processing warnings silently
         }
 
+        // 3. Process Pose Landmarks
+        if (this.poseLandmarker) {
+            try {
+                const poseResults = this.poseLandmarker.detectForVideo(video, safeTimestamp);
+                if (poseResults && poseResults.landmarks && poseResults.landmarks.length > 0) {
+                    poseLandmarks = poseResults.landmarks[0];
+                }
+            } catch (e) {
+                // Suppress pose processing warnings silently
+            }
+        }
+
         return {
             left_hand: leftHand,
             right_hand: rightHand,
-            face: faceLandmarks
+            face: faceLandmarks,
+            pose: poseLandmarks
         };
     }
 
@@ -146,8 +195,10 @@ export class MediaPipeManager {
     public close(): void {
         this.handLandmarker?.close();
         this.faceLandmarker?.close();
+        this.poseLandmarker?.close();
         this.handLandmarker = null;
         this.faceLandmarker = null;
+        this.poseLandmarker = null;
         this.isReady = false;
         this.lastTimestamp = -1;
     }

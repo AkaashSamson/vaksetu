@@ -9,10 +9,11 @@ import { EnglishResultCard } from "./english-result-card"
 import { useSignStream } from "@/hooks/use-sign-stream"
 
 type SignTranslatorProps = {
+    modelType: "pygru" | "ctc"
     onEnglishSentenceChange?: (sentence: string) => void
 }
 
-export function SignTranslator({ onEnglishSentenceChange }: SignTranslatorProps) {
+export function SignTranslator({ modelType, onEnglishSentenceChange }: SignTranslatorProps) {
     const videoRef = React.useRef<HTMLVideoElement | null>(null)
     const canvasRef = React.useRef<HTMLCanvasElement | null>(null)
 
@@ -24,7 +25,7 @@ export function SignTranslator({ onEnglishSentenceChange }: SignTranslatorProps)
         errorMessage,
         startTranslation,
         stopTranslation
-    } = useSignStream()
+    } = useSignStream(modelType)
 
     // Pass recognized English up to parent whenever it changes
     React.useEffect(() => {
