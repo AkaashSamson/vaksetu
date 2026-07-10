@@ -111,9 +111,11 @@ export function DictionaryCard({
                         absolute
                         inset-0
                         bg-gradient-to-t
-                        from-black/80
-                        via-black/20
+                        from-black/40
                         to-transparent
+                        transition-opacity
+                        duration-300
+                        group-hover:opacity-0
                     "
                 />
 

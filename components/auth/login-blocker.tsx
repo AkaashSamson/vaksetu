@@ -172,26 +172,11 @@ export function LoginBlocker({ onAuthed }: { onAuthed: () => void }) {
 
                         <Button
                             type="button"
-                            variant="outline"
-                            className="border-brand-800 text-brand-800 hover:bg-brand-600 hover:text-white"
-                            disabled={loading}
-                            onClick={async () => {
-                                setLoading(true)
-                                await new Promise((r) => setTimeout(r, 300))
-                                alert("Google login is not yet implemented.")
-                                setLoading(false)
-                            }}
-                        >
-                            Continue with Google (placeholder)
-                        </Button>
-
-                        <Button
-                            type="button"
                             variant="ghost"
                             className="text-muted-foreground hover:text-foreground"
                             disabled={loading}
                             onClick={() => {
-                                window.location.href = "/"
+                                window.location.href = "/home"
                             }}
                         >
                             Cancel

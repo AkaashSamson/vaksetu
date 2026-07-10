@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import {
   BadgeCheck,
   Bell,
@@ -41,6 +42,11 @@ export function NavUser({
   } | null
 }) {
   const { isMobile } = useSidebar()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   if (!user) {
     return (
@@ -62,6 +68,26 @@ export function NavUser({
   }
 
   const userInitials = user.name ? user.name.slice(0, 2).toUpperCase() : (user.email ? user.email.slice(0, 2).toUpperCase() : "U")
+
+  if (!mounted) {
+    return (
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          >
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback className="rounded-lg">{userInitials}</AvatarFallback>
+            </Avatar>
+            <span className="sr-only">{user.name || user.email || "User"}</span>
+            <ChevronsUpDown className="ml-auto size-4" />
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    )
+  }
 
   return (
     <SidebarMenu>

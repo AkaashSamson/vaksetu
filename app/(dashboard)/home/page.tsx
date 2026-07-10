@@ -35,6 +35,7 @@ export default function Page() {
     const [mode, setMode] = useState<Mode>("sign-to-text");
     const [speechText, setSpeechText] = useState("");
     const [recognizedEnglish, setRecognizedEnglish] = useState("");
+    const [modelType, setModelType] = useState<"pygru" | "ctc">("pygru");
 
     // --- Multilingual Translation & Speech State ---
     const [targetLanguage, setTargetLanguage] = useState("hi-IN");
@@ -152,36 +153,51 @@ export default function Page() {
                         </h1>
                     </div>
 
-                    {/* Right side toggle */}
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground hidden sm:inline font-medium">Mode</span>
+                    {/* Right side controls */}
+                    <div className="flex items-center gap-4">
+                        {isSignToText && (
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground font-medium hidden sm:inline">Model</span>
+                                <select
+                                    value={modelType}
+                                    onChange={(e) => setModelType(e.target.value as "pygru" | "ctc")}
+                                    className="h-9 rounded-md border border-border bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-brand-500 font-medium"
+                                >
+                                    <option value="pygru">Model 1 (Bi-GRU)</option>
+                                    <option value="ctc">Model 2 (CTC)</option>
+                                </select>
+                            </div>
+                        )}
 
-                        <div className="flex items-center rounded-lg border bg-background p-1 shadow-sm">
-                            <button
-                                type="button"
-                                onClick={() => handleModeSwitch("sign-to-text")}
-                                className={[
-                                    "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition",
-                                    isSignToText ? "bg-muted text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-                                ].join(" ")}
-                                aria-pressed={isSignToText}
-                            >
-                                <Camera className="h-4 w-4" />
-                                <span className="hidden sm:inline">Sign</span>
-                            </button>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground hidden sm:inline font-medium">Mode</span>
+                            <div className="flex items-center rounded-lg border bg-background p-1 shadow-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleModeSwitch("sign-to-text")}
+                                    className={[
+                                        "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition",
+                                        isSignToText ? "bg-muted text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                                    ].join(" ")}
+                                    aria-pressed={isSignToText}
+                                >
+                                    <Camera className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Sign</span>
+                                </button>
 
-                            <button
-                                type="button"
-                                onClick={() => handleModeSwitch("speech-to-sign")}
-                                className={[
-                                    "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition",
-                                    !isSignToText ? "bg-muted text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-                                ].join(" ")}
-                                aria-pressed={!isSignToText}
-                            >
-                                <Mic className="h-4 w-4" />
-                                <span className="hidden sm:inline">Speech</span>
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleModeSwitch("speech-to-sign")}
+                                    className={[
+                                        "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition",
+                                        !isSignToText ? "bg-muted text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                                    ].join(" ")}
+                                    aria-pressed={!isSignToText}
+                                >
+                                    <Mic className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Speech</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -191,7 +207,7 @@ export default function Page() {
                 <div className="mx-auto w-full max-w-6xl space-y-6">
                     {isSignToText ? (
                         <>
-                            <SignTranslator onEnglishSentenceChange={setRecognizedEnglish} />
+                            <SignTranslator modelType={modelType} onEnglishSentenceChange={setRecognizedEnglish} />
 
                             {/* Sarvam AI Multilingual translation panel */}
                             {recognizedEnglish && (
@@ -274,9 +290,6 @@ export default function Page() {
                                                                         </>
                                                                     )}
                                                                 </Button>
-                                                                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-                                                                    Voice: Shreya
-                                                                </span>
                                                             </div>
                                                         </div>
                                                     )}

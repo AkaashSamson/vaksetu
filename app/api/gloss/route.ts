@@ -170,7 +170,7 @@ function validateAndFixGloss(rawGlossText: string, vocabSet: Set<string>, multiW
     let tokens: string[] = [];
     
     // Extract JSON list
-    const match = rawGlossText.match(/\[.*?\]/s);
+    const match = rawGlossText.match(/\[[\s\S]*?\]/);
     if (match) {
         try {
             tokens = JSON.parse(match[0]);
