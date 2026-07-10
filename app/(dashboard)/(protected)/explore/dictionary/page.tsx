@@ -7,6 +7,51 @@ function normalize(s: string) {
     return s.trim().toLowerCase();
 }
 
+function sortEntries(data: DictionaryEntry[]): DictionaryEntry[] {
+    return [...data].sort((a, b) => {
+        const isNumA = a.tags?.includes("numbers");
+        const isNumB = b.tags?.includes("numbers");
+        const isAlphaA = a.tags?.includes("alphabet");
+        const isAlphaB = b.tags?.includes("alphabet");
+
+        // Priority 1: numbers
+        if (isNumA && !isNumB) return -1;
+        if (!isNumA && isNumB) return 1;
+        if (isNumA && isNumB) {
+            const valA = parseInt(a.query, 10);
+            const valB = parseInt(b.query, 10);
+            if (!isNaN(valA) && !isNaN(valB) && valA !== valB) {
+                return valA - valB;
+            }
+            if (a.query !== b.query) return a.query.localeCompare(b.query);
+            const hasVideoA = !!a.signVideoUrl;
+            const hasVideoB = !!b.signVideoUrl;
+            if (hasVideoA && !hasVideoB) return -1;
+            if (!hasVideoA && hasVideoB) return 1;
+            return a.id.localeCompare(b.id);
+        }
+
+        // Priority 2: alphabet
+        if (isAlphaA && !isAlphaB) return -1;
+        if (!isAlphaA && isAlphaB) return 1;
+        if (isAlphaA && isAlphaB) {
+            const valA = a.query.toLowerCase();
+            const valB = b.query.toLowerCase();
+            if (valA !== valB) return valA.localeCompare(valB);
+            const hasVideoA = !!a.signVideoUrl;
+            const hasVideoB = !!b.signVideoUrl;
+            if (hasVideoA && !hasVideoB) return -1;
+            if (!hasVideoA && hasVideoB) return 1;
+            return a.id.localeCompare(b.id);
+        }
+
+        // Priority 3: other words (alphabetical)
+        const textA = a.translation.toLowerCase();
+        const textB = b.translation.toLowerCase();
+        return textA.localeCompare(textB);
+    });
+}
+
 export default function DictionaryPage() {
     const [entries, setEntries] = useState<DictionaryEntry[]>([]);
     const [loading, setLoading] = useState(true);
@@ -28,9 +73,11 @@ export default function DictionaryPage() {
                 if (!res.ok) throw new Error(`Failed to load entries.json (${res.status})`);
 
                 const data = (await res.json()) as DictionaryEntry[];
+                const videoOnlyData = data.filter((e) => !!e.signVideoUrl);
+                const sorted = sortEntries(videoOnlyData);
 
                 if (!cancelled) {
-                    setEntries(data);
+                    setEntries(sorted);
                 }
             } catch (e) {
                 if (!cancelled) {
