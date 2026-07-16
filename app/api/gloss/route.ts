@@ -21,32 +21,41 @@ const FUNCTION_WORDS = new Set([
 
 function loadVocabulary(): { vocabList: string[], vocabSet: Set<string>, multiWordSigns: Set<string> } {
     const vocabSet = new Set<string>();
+    const assetsDir = path.join(process.cwd(), 'public', 'Glosses', 'Videos', 'assets');
     
     try {
-        const fileContent = fs.readFileSync(VOCAB_FILE_PATH, 'utf-8');
-        const lines = fileContent.split('\n');
-        
-        for (let i = 1; i < lines.length; i++) { // Skip header
-            const row = lines[i].split(',')[0]?.trim();
-            if (row && !['sign', '0', ''].includes(row.toLowerCase())) {
-                if (!row.includes('|')) {
-                    const upperSign = row.toUpperCase();
-                    
-                    if (upperSign.includes(':')) {
-                        const parts = upperSign.split(':');
-                        const cleaned = parts[1].trim();
-                        if (cleaned) {
-                            vocabSet.add(cleaned);
-                        }
-                        vocabSet.add(upperSign);
-                    } else {
-                        vocabSet.add(upperSign);
+        if (fs.existsSync(assetsDir)) {
+            const files = fs.readdirSync(assetsDir);
+            for (const file of files) {
+                const ext = path.extname(file).toLowerCase();
+                if (['.mp4', '.mkv', '.webm'].includes(ext)) {
+                    const word = path.basename(file, ext).toUpperCase().trim();
+                    // Skip single letters (A-Z) and digits (0-9) as they are used for fingerspelling/numbers
+                    if (word.length === 1 && /[A-Z0-9]/.test(word)) {
+                        continue;
+                    }
+                    if (word) {
+                        vocabSet.add(word);
                     }
                 }
             }
+        } else {
+            console.error("Assets directory does not exist at:", assetsDir);
         }
     } catch (error) {
-        console.error("Error reading Vocabulary.csv:", error);
+        console.error("Error reading video assets directory:", error);
+    }
+    
+    // In case directory scanning fails, have a static fallback of the known 21 words
+    if (vocabSet.size === 0) {
+        const fallbackWords = [
+            'BOOK', 'BYE', 'CARRY', 'DOCTOR', 'HELP', 'HIM', 'HOUSE',
+            'LANGUAGE', 'ME', 'MONDAY', 'MY', 'ON', 'PEN', 'PRACTICE',
+            'SIGN', 'TABLE', 'TOGETHER', 'UNDERSTAND', 'WE', 'WHAT', 'WHERE'
+        ];
+        for (const w of fallbackWords) {
+            vocabSet.add(w);
+        }
     }
     
     const multiWordSigns = new Set<string>();

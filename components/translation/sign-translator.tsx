@@ -51,7 +51,7 @@ export function SignTranslator({ modelType, onEnglishSentenceChange }: SignTrans
                         Webcam Input
                     </h2>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                        {modelType === "ctc" ? "Normal mode active" : "Mirror mode active"}
+                        Mirror mode active
                     </span>
                 </header>
 
@@ -59,7 +59,6 @@ export function SignTranslator({ modelType, onEnglishSentenceChange }: SignTrans
                     <CameraPreview
                         videoRef={videoRef}
                         canvasRef={canvasRef}
-                        mirrored={modelType !== "ctc"}
                     />
 
                     {errorMessage && (
