@@ -37,6 +37,9 @@ export function CameraPreview({
                 await videoRef.current.play()
             }
         } catch (e) {
+            if (e instanceof Error && e.name === "AbortError") {
+                return
+            }
             setCameraError(
                 e instanceof Error ? e.message : "Failed to access the camera."
             )
