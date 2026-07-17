@@ -1,4 +1,4 @@
-import { eq, sql, and } from 'drizzle-orm';
+import { eq, sql, and, inArray } from 'drizzle-orm';
 import { db } from '../index';
 import { userGroup, groupMember, quizGroup, userProfile, quiz } from '../schema';
 
@@ -32,28 +32,36 @@ export async function getAllCommunities(): Promise<PopulatedCommunityGroup[]> {
         .from(userGroup)
         .leftJoin(userProfile, eq(userGroup.createdBy, userProfile.id));
 
-    const populatedGroups: PopulatedCommunityGroup[] = [];
+    const groupIds = allGroups.map(g => g.id);
+    if (groupIds.length === 0) return [];
 
-    // For each group, fetch members and linked quizzes
-    for (const group of allGroups) {
-        const members = await db
-            .select({ userId: groupMember.userId })
-            .from(groupMember)
-            .where(eq(groupMember.groupId, group.id));
-            
-        const quizzes = await db
-            .select({ quizId: quizGroup.quizId })
-            .from(quizGroup)
-            .where(eq(quizGroup.groupId, group.id));
+    const allMembers = await db
+        .select({ groupId: groupMember.groupId, userId: groupMember.userId })
+        .from(groupMember)
+        .where(inArray(groupMember.groupId, groupIds));
+        
+    const allQuizzes = await db
+        .select({ groupId: quizGroup.groupId, quizId: quizGroup.quizId })
+        .from(quizGroup)
+        .where(inArray(quizGroup.groupId, groupIds));
 
-        populatedGroups.push({
-            ...group,
-            memberIds: members.map(m => m.userId),
-            quizIds: quizzes.map(q => q.quizId),
-        });
+    const membersMap: Record<string, string[]> = {};
+    const quizzesMap: Record<string, string[]> = {};
+
+    for (const m of allMembers) {
+        if (!membersMap[m.groupId]) membersMap[m.groupId] = [];
+        membersMap[m.groupId].push(m.userId);
+    }
+    for (const q of allQuizzes) {
+        if (!quizzesMap[q.groupId]) quizzesMap[q.groupId] = [];
+        quizzesMap[q.groupId].push(q.quizId);
     }
 
-    return populatedGroups;
+    return allGroups.map(group => ({
+        ...group,
+        memberIds: membersMap[group.id] || [],
+        quizIds: quizzesMap[group.id] || [],
+    }));
 }
 
 /**
@@ -76,30 +84,36 @@ export async function getUserCommunities(userId: string): Promise<PopulatedCommu
         .leftJoin(userProfile, eq(userGroup.createdBy, userProfile.id))
         .where(eq(groupMember.userId, userId));
 
-    const populatedGroups: PopulatedCommunityGroup[] = [];
+    const groupIds = userGroups.map(g => g.id);
+    if (groupIds.length === 0) return [];
 
-    // For each group, fetch members and linked quizzes
-    // In a production app with high volume, this N+1 should be optimized via aggregation, 
-    // but this suffices for the current scale.
-    for (const group of userGroups) {
-        const members = await db
-            .select({ userId: groupMember.userId })
-            .from(groupMember)
-            .where(eq(groupMember.groupId, group.id));
-            
-        const quizzes = await db
-            .select({ quizId: quizGroup.quizId })
-            .from(quizGroup)
-            .where(eq(quizGroup.groupId, group.id));
+    const allMembers = await db
+        .select({ groupId: groupMember.groupId, userId: groupMember.userId })
+        .from(groupMember)
+        .where(inArray(groupMember.groupId, groupIds));
+        
+    const allQuizzes = await db
+        .select({ groupId: quizGroup.groupId, quizId: quizGroup.quizId })
+        .from(quizGroup)
+        .where(inArray(quizGroup.groupId, groupIds));
 
-        populatedGroups.push({
-            ...group,
-            memberIds: members.map(m => m.userId),
-            quizIds: quizzes.map(q => q.quizId),
-        });
+    const membersMap: Record<string, string[]> = {};
+    const quizzesMap: Record<string, string[]> = {};
+
+    for (const m of allMembers) {
+        if (!membersMap[m.groupId]) membersMap[m.groupId] = [];
+        membersMap[m.groupId].push(m.userId);
+    }
+    for (const q of allQuizzes) {
+        if (!quizzesMap[q.groupId]) quizzesMap[q.groupId] = [];
+        quizzesMap[q.groupId].push(q.quizId);
     }
 
-    return populatedGroups;
+    return userGroups.map(group => ({
+        ...group,
+        memberIds: membersMap[group.id] || [],
+        quizIds: quizzesMap[group.id] || [],
+    }));
 }
 
 /**

@@ -40,7 +40,7 @@ type Quiz = {
  *  - /public/glosses/S.png  -> return `/glosses/${name}.png`
  */
 function glossImageUrlByName(name: string) {
-    return `/glosses/${name}.jpg`
+    return `/Glosses/${name}.jpg`
 }
 
 

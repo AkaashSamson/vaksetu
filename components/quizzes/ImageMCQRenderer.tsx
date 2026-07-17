@@ -11,7 +11,7 @@ interface ImageMCQRendererProps {
 }
 
 function glossImageUrlByName(name: string) {
-    return `/glosses/${name}.jpg`
+    return `/Glosses/${name}.jpg`
 }
 
 function optionLetter(index: number) {

@@ -130,91 +130,98 @@ export default function CommunitiesPage() {
             <div className="flex flex-1 flex-col p-4 pt-0">
                 <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8">
                     {/* CONTENT */}
-                    <div className="space-y-8">
-                        {/* Your Communities */}
-                        <section className="space-y-3">
-                            <h2 className="text-sm font-semibold text-muted-foreground">
-                                Your Communities
-                            </h2>
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-20 text-green-800">
+                            <Loader2 className="w-10 h-10 animate-spin mb-4 text-green-600" />
+                            <p className="font-medium text-lg">Loading communities...</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-8">
+                            {/* Your Communities */}
+                            <section className="space-y-3">
+                                <h2 className="text-sm font-semibold text-muted-foreground">
+                                    Your Communities
+                                </h2>
 
-                            {yourGroups.length === 0 ? (
-                                <div className="rounded-2xl border border-dashed bg-background p-6 text-sm text-muted-foreground">
-                                    You haven’t joined any communities yet. Join with a code or
-                                    create your own.
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                    {yourGroups.map((g) => (
-                                        <button
-                                            key={g.id}
-                                            type="button"
-                                            onClick={() => router.push(`/explore/communities/${g.id}`)}
-                                            className="text-left rounded-2xl border bg-background p-4 shadow-sm transition hover:shadow-md hover:border-green-500"
-                                        >
-                                            <div className="space-y-1">
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <div className="text-base font-semibold break-all">{g.name}</div>
-                                                    {!g.isPublic && <Badge variant="secondary" className="text-[10px] uppercase font-semibold tracking-wider shrink-0">Private</Badge>}
+                                {yourGroups.length === 0 ? (
+                                    <div className="rounded-2xl border border-dashed bg-background p-6 text-sm text-muted-foreground">
+                                        You haven’t joined any communities yet. Join with a code or
+                                        create your own.
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                        {yourGroups.map((g) => (
+                                            <button
+                                                key={g.id}
+                                                type="button"
+                                                onClick={() => router.push(`/explore/communities/${g.id}`)}
+                                                className="text-left rounded-2xl border bg-background p-4 shadow-sm transition hover:shadow-md hover:border-green-500"
+                                            >
+                                                <div className="space-y-1">
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div className="text-base font-semibold break-all">{g.name}</div>
+                                                        {!g.isPublic && <Badge variant="secondary" className="text-[10px] uppercase font-semibold tracking-wider shrink-0">Private</Badge>}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Created by: {g.ownerName || "Unknown"}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Code: {g.inviteCode}
+                                                    </div>
                                                 </div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    Created by: {g.ownerName || "Unknown"}
+                                                <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
+                                                    {g.description}
+                                                </p>
+                                                <div className="mt-3 text-xs text-muted-foreground">
+                                                    Quizzes: {g.quizIds.length}
                                                 </div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    Code: {g.inviteCode}
-                                                </div>
-                                            </div>
-                                            <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
-                                                {g.description}
-                                            </p>
-                                            <div className="mt-3 text-xs text-muted-foreground">
-                                                Quizzes: {g.quizIds.length}
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </section>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
 
-                        {/* Other Communities */}
-                        <section className="space-y-3">
-                            <h2 className="text-sm font-semibold text-muted-foreground">
-                                Other Communities
-                            </h2>
+                            {/* Other Communities */}
+                            <section className="space-y-3">
+                                <h2 className="text-sm font-semibold text-muted-foreground">
+                                    Other Communities
+                                </h2>
 
-                            {otherGroups.length === 0 ? (
-                                <div className="rounded-2xl border bg-background p-6 text-sm text-muted-foreground">
-                                    No other communities available right now.
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                    {otherGroups.map((g) => (
-                                        <button
-                                            key={g.id}
-                                            type="button"
-                                            onClick={() => router.push(`/explore/communities/${g.id}`)}
-                                            className="text-left rounded-2xl border bg-background p-4 shadow-sm transition hover:shadow-md"
-                                        >
-                                            <div className="space-y-1">
-                                                <div className="text-base font-semibold">{g.name}</div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    Created by: {g.ownerName || "Unknown"}
+                                {otherGroups.length === 0 ? (
+                                    <div className="rounded-2xl border bg-background p-6 text-sm text-muted-foreground">
+                                        No other communities available right now.
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                        {otherGroups.map((g) => (
+                                            <button
+                                                key={g.id}
+                                                type="button"
+                                                onClick={() => router.push(`/explore/communities/${g.id}`)}
+                                                className="text-left rounded-2xl border bg-background p-4 shadow-sm transition hover:shadow-md"
+                                            >
+                                                <div className="space-y-1">
+                                                    <div className="text-base font-semibold">{g.name}</div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Created by: {g.ownerName || "Unknown"}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">
+                                                        Code: {g.inviteCode}
+                                                    </div>
                                                 </div>
-                                                <div className="text-xs text-muted-foreground">
-                                                    Code: {g.inviteCode}
+                                                <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
+                                                    {g.description}
+                                                </p>
+                                                <div className="mt-3 text-xs text-muted-foreground">
+                                                    Members: {g.memberIds?.length || 0} • Quizzes: {g.quizIds?.length || 0}
                                                 </div>
-                                            </div>
-                                            <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
-                                                {g.description}
-                                            </p>
-                                            <div className="mt-3 text-xs text-muted-foreground">
-                                                Members: {g.memberIds?.length || 0} • Quizzes: {g.quizIds?.length || 0}
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </section>
-                    </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
+                        </div>
+                    )}
 
                     {/* BOTTOM BUTTONS */}
                     <div className="mt-auto flex flex-col gap-3 sm:flex-row sm:justify-end pb-2">

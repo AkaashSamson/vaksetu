@@ -121,7 +121,7 @@ export async function getHydratedQuizById(id: string) {
         const questionType = q.type || 'image_mcq';
 
         if (questionType === 'sign_mcq') {
-            const question_image = correctGloss ? (correctGloss.imageUrl || `/glosses/${correctGloss.glossName}.jpg`) : '';
+            const question_image = correctGloss ? (correctGloss.imageUrl || `/Glosses/${correctGloss.glossName}.jpg`) : '';
             return {
                 type: 'sign_mcq',
                 q_no: q.q_no,
