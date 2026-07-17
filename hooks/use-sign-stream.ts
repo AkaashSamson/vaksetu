@@ -205,8 +205,9 @@ export function useSignStream(modelType: "pygru" | "ctc" = "pygru") {
             const normalizer = getNormalizer();
 
             const raw = mp.processVideoFrame(video, performance.now());
-            const fullFeatures = normalizer.normalizeFrame(raw);
-            const payload = normalizer.formatValidationPayload(raw, fullFeatures);
+            const mirroredRaw = mirrorRawLandmarks(raw);
+            const fullFeatures = normalizer.normalizeFrame(mirroredRaw);
+            const payload = normalizer.formatValidationPayload(mirroredRaw, fullFeatures);
 
             console.log("[useSignStream] Sending feature validation request payload...", payload);
 
@@ -415,7 +416,8 @@ export function useSignStream(modelType: "pygru" | "ctc" = "pygru") {
                             const raw = mp.processVideoFrame(video, now);
                             drawSkeletonOverlay(canvas, video, raw.left_hand, raw.right_hand);
 
-                            const features = normalizer.normalizeFrame(raw);
+                            const mirroredRaw = mirrorRawLandmarks(raw);
+                            const features = normalizer.normalizeFrame(mirroredRaw);
                             ws.send(JSON.stringify({
                                 type: "landmarks",
                                 schema_version: "1.0",
