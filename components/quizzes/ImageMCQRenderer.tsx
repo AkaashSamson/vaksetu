@@ -40,18 +40,18 @@ export default function ImageMCQRenderer({
                             type="button"
                             onClick={() => onSelectOption(opt.id)}
                             className={[
-                                "overflow-hidden rounded-xl border text-left transition duration-200 cursor-pointer bg-card",
+                                "overflow-hidden rounded-xl border text-left transition duration-200 cursor-pointer bg-card p-1",
                                 isSelected
-                                    ? "border-brand-500 ring-4 ring-brand-400/15"
+                                    ? "border-brand-600 border-[6px] ring-4 ring-brand-400/15"
                                     : "border-border hover:border-brand-400/60 hover:ring-4 hover:ring-brand-400/10",
                             ].join(" ")}
                         >
-                            <div className="relative aspect-4/3 w-full bg-slate-950/20 dark:bg-slate-950/40">
+                            <div className="relative aspect-4/3 w-full bg-slate-950/20 dark:bg-slate-950/40 p-2">
                                 <Image
                                     src={src}
                                     alt={`Option ${letter}`}
                                     fill
-                                    className="object-contain"
+                                    className="object-fill"
                                     sizes="(min-width: 640px) 50vw, 100vw"
                                 />
                                 <div className="absolute left-3 top-3 rounded-full bg-brand-600 hover:bg-brand-700 px-2.5 py-1 text-xs font-semibold text-white transition-colors shadow-sm">
